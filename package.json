@@ -1,0 +1,16 @@
+{
+    "name": "domplate",
+    "description": "JavaScript Template Library",
+    "keywords": [
+        "js",
+        "template",
+        "library"
+    ],
+    "author": "Christoph Dorn (http://www.christophdorn.com/)",
+    "lib": "lib",
+    "license": [
+        "BSD"
+    ],
+    "dependencies": [
+    ]
+}
