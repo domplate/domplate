@@ -4,7 +4,10 @@
     "keywords": [
         "js",
         "template",
-        "library"
+        "library",
+        "domplate",
+        "rep",
+        "reps"
     ],
     "author": "Christoph Dorn (http://www.christophdorn.com/)",
     "lib": "lib",
