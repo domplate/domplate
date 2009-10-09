@@ -14,7 +14,7 @@ exports.testHelloWorld = function () {
 
     with (DOMPLATE.tags) {
         rep = DOMPLATE.domplate({
-            tag: DIV({"style": "color: red;"},"$object|capitalize'"),
+            tag: DIV({"style": "color: red;"},"$object|capitalize"),
             capitalize: function(str) {
                 return str.toUpperCase();
             }
@@ -25,7 +25,7 @@ exports.testHelloWorld = function () {
         object: "Hello World"
     });
     
-    ASSERT.eq("<div style=\"color: red;\" class=\" \">HELLO WORLD'</div>", html);
+    ASSERT.eq("<div style=\"color: red;\" class=\" \">HELLO WORLD</div>", html);
 
 };
 
