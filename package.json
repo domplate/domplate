@@ -9,7 +9,10 @@
         "rep",
         "reps"
     ],
-    "author": "Christoph Dorn (http://www.christophdorn.com/)",
+    "author": "Joe Hewitt (http://joehewitt.com/)",
+    "contributors": [
+        "Christoph Dorn (http://www.christophdorn.com/)",
+    ],
     "lib": "lib",
     "license": [
         "BSD"
