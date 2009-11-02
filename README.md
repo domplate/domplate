@@ -4,6 +4,33 @@ Domplate
 JavaScript Template Library
 
 
+Example
+=======
+
+    var DOMPLATE = require("domplate", "domplate");
+    var rep;
+    with (DOMPLATE.tags) {
+        rep = DOMPLATE.domplate({
+            tag: DIV({"style": "color: red;"},"$object|capitalize"),
+            capitalize: function(str) {
+                return str.toUpperCase();
+            }
+        });
+    }    
+    var html = rep.tag.render({
+        object: "Hello World"
+    });
+
+    // html == <div style="color: red;" class=" ">HELLO WORLD</div>
+
+
+Links
+=====
+
+  * http://www.softwareishard.com/blog/category/domplate/
+  * http://code.google.com/p/domplate/
+  * http://www.christophdorn.com/Blog/category/domplate/
+
 
 License
 =======
