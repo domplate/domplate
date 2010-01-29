@@ -1,4 +1,5 @@
 {
+    "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
     "name": "domplate",
     "description": "JavaScript Template Library",
     "keywords": [
@@ -13,10 +14,13 @@
     "contributors": [
         "Christoph Dorn (http://www.christophdorn.com/)"
     ],
-    "lib": "lib",
     "license": [
         "BSD"
     ],
-    "dependencies": [
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git://github.com/cadorn/domplate.git"
+        }
     ]
 }
