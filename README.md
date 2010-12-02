@@ -27,9 +27,9 @@ Example
 Links
 =====
 
-  * http://www.softwareishard.com/blog/category/domplate/
-  * http://code.google.com/p/domplate/
-  * http://www.christophdorn.com/Blog/category/domplate/
+  * [http://www.softwareishard.com/blog/category/domplate/](http://www.softwareishard.com/blog/category/domplate/)
+  * [http://code.google.com/p/domplate/](http://code.google.com/p/domplate/)
+  * [http://www.christophdorn.com/Blog/category/domplate/](http://www.christophdorn.com/Blog/category/domplate/)
 
 
 License
