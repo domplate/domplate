@@ -26,5 +26,10 @@
       "type": "git",
       "url": "git://github.com/cadorn/domplate.git"
     }
-  ]
+  ],
+  "config": {
+    "pio.deploy.converter": {
+      "name": "nodejs-lib"
+    }
+  }
 }
