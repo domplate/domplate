@@ -4,3 +4,4 @@
 /build/
 .pinf-workspace.json
 /bin/.pinf-activate-workspace
+/.pio.cache/
