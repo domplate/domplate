@@ -1,35 +1,35 @@
 {
-  "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
-  "name": "domplate",
-  "version": "0.2.1",
-  "description": "JavaScript Template Library",
-  "keywords": [
-    "js",
-    "template",
-    "library",
-    "domplate",
-    "rep",
-    "reps"
-  ],
-  "author": "Joe Hewitt (http://joehewitt.com/)",
-  "contributors": [
-    "Christoph Dorn (http://www.christophdorn.com/)"
-  ],
-  "directories": {
-    "lib": "./lib"
-  },
-  "license": [
-    "BSD"
-  ],
-  "repositories": [
-    {
-      "type": "git",
-      "url": "git://github.com/cadorn/domplate.git"
+    "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
+    "name": "domplate",
+    "version": "0.2.2",
+    "description": "JavaScript Template Library",
+    "keywords": [
+        "js",
+        "template",
+        "library",
+        "domplate",
+        "rep",
+        "reps"
+    ],
+    "author": "Joe Hewitt (http://joehewitt.com/)",
+    "contributors": [
+        "Christoph Dorn (http://www.christophdorn.com/)"
+    ],
+    "directories": {
+        "lib": "./lib"
+    },
+    "license": [
+        "BSD"
+    ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git://github.com/cadorn/domplate.git"
+        }
+    ],
+    "config": {
+        "pio.deploy.converter": {
+            "name": "nodejs-lib"
+        }
     }
-  ],
-  "config": {
-    "pio.deploy.converter": {
-      "name": "nodejs-lib"
-    }
-  }
 }
