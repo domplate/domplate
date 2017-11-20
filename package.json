@@ -1,7 +1,7 @@
 {
     "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
     "name": "domplate",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "pm": {
         "publish": "npm"
     },
