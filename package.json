@@ -2,6 +2,9 @@
     "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
     "name": "domplate",
     "version": "0.2.2",
+    "pm": {
+        "publish": "npm"
+    },
     "description": "JavaScript Template Library",
     "keywords": [
         "js",
