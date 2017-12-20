@@ -6,3 +6,7 @@
 /bin/.pinf-activate-workspace
 /.pio.cache/
 /.installed*
+/node_modules/
+.rt/
+/examples/*/.actual.*
+*~.compiled.*
