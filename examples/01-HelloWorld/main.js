@@ -14,26 +14,6 @@ describe("Suite", function() {
 
     require('bash.origin.workspace').LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
-            "^/": function /* CodeBlock */ () {
-
-                return function (req, res, next) {
-
-                    var html = [
-                        '<script src="/dist/domplate.js"></script>',
-                        '<div></div>',
-                        '<script>',
-                        'var rep = window.domplate.domplate({',
-                        '    tag: window.domplate.tags.DIV("$message")',
-                        '});',
-                        'rep.tag.replace({',
-                        '    message: "Hello World!"',
-                        '}, document.querySelector("DIV"));',
-                        '</script>'
-                    ];
-
-                    res.end(html.join("\n"));
-                };
-            },
             "/dist/domplate.js": {
                 "@it.pinf.org.browserify#s1": {
                     "src": __dirname + "/../../lib/domplate.js",
@@ -44,7 +24,19 @@ describe("Suite", function() {
                     },
                     "prime": true
                 }
-            }
+            },
+            "/": [
+                '<script src="/dist/domplate.js"></script>',
+                '<div></div>',
+                '<script>',
+                'var rep = window.domplate.domplate({',
+                '    tag: window.domplate.tags.DIV("$message")',
+                '});',
+                'rep.tag.replace({',
+                '    message: "Hello World!"',
+                '}, document.querySelector("DIV"));',
+                '</script>'
+            ].join("\n")
         }
     });
 
