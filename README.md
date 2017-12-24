@@ -1,22 +1,22 @@
 Domplate
 ========
 
-JavaScript Template Library
+JavaScript Template Library originally used in Mozilla Firebug.
+
+  * Client-side compile using `eval()`
+  * Optional server-side compile to execute on client without `eval()`
 
 
 Example
 =======
 
     var DOMPLATE = require("domplate", "domplate");
-    var rep;
-    with (DOMPLATE.tags) {
-        rep = DOMPLATE.domplate({
-            tag: DIV({"style": "color: red;"},"$object|capitalize"),
-            capitalize: function(str) {
-                return str.toUpperCase();
-            }
-        });
-    }    
+    var rep = DOMPLATE.domplate({
+        tag: DOMPLATE.tags.DIV({"style": "color: red;"},"$object|capitalize"),
+        capitalize: function(str) {
+            return str.toUpperCase();
+        }
+    });
     var html = rep.tag.render({
         object: "Hello World"
     });
