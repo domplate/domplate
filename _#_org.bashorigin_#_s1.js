@@ -35,7 +35,7 @@ exports.forConfig = function (CONFIG) {
         try {
             new LIB.JSDOM.JSDOM(`
                 <head>
-                    <script src="file://${baseDistPath}/domplate.js"></script>
+                    <script src="file://${baseDistPath}/domplate-eval.js"></script>
                 </head>
                 <body>
                 <div></div>
@@ -101,6 +101,15 @@ exports.forConfig = function (CONFIG) {
                     "window": "domplate"
                 }
             }, "domplate.js")
+        },
+        "/domplate-eval.js": {
+            "@it.pinf.org.browserify#s1": augmentConfig({
+                "src": PATH.join(__dirname, "lib/domplate-eval.js"),
+                "format": "standalone",
+                "expose": {
+                    "window": "domplate"
+                }
+            }, "domplate-eval.js")
         }
     };
     Object.keys(CONFIG.reps).forEach(function (uri) {
@@ -175,20 +184,35 @@ exports.forConfig = function (CONFIG) {
                 implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
                     if (err) return callback(err);
 
-                    repCode = repCode.replace(/"use strict";/g, "");
+                    var repSource = repCode;
+                    repSource = repSource.replace(/"use strict";/g, "");
+                    repSource = repSource.replace(/"%%DOM%%"/, "null");
+                    repSource = repSource.replace(/"%%MARKUP%%"/, "null");     
 
-                    compileIfDesired(repCode, struct, function (err, result) {
+                    compileIfDesired(repSource, struct, function (err, result) {
                         if (err) return callback(err);
 
                         var repBuild = repCode;
                         if (result) {
+                            repBuild = repBuild.replace(/"use strict";/g, "");
                             repBuild = repBuild.replace(/"%%DOM%%"/, [
-                                'function () {',
+                                'function (context) {',
+                                    'var DomplateDebug = context.DomplateDebug;',
+                                    'var __path__ = context.__path__;',
+                                    'var __bind__ = context.__bind__;',
+                                    'var __if__ = context.__if__;',
+                                    'var __link__ = context.__link__;',
+                                    'var __loop__ = context.__loop__;',
                                     'return ' + result.dom,
                                 '}'
                             ].join("\n"));
                             repBuild = repBuild.replace(/"%%MARKUP%%"/, [
-                                'function () {',
+                                'function (context) {',
+                                    'var DomplateDebug = context.DomplateDebug;',
+                                    'var __escape__ = context.__escape__;',
+                                    'var __if__ = context.__if__;',
+                                    'var __loop__ = context.__loop__;',
+                                    'var __link__ = context.__link__;',
                                     'return ' + result.markup,
                                 '}'
                             ].join("\n"));
