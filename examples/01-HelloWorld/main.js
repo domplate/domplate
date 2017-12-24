@@ -14,10 +14,10 @@ describe("Suite", function() {
 
     require('bash.origin.workspace').LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
-            "/dist/domplate.js": {
+            "/dist/domplate-eval.js": {
                 "@it.pinf.org.browserify#s1": {
-                    "src": __dirname + "/../../lib/domplate.js",
-                    "dist": __dirname + "/../../dist/domplate.js",
+                    "src": __dirname + "/../../lib/domplate-eval.js",
+                    "dist": __dirname + "/../../dist/domplate-eval.js",
                     "format": "standalone",
                     "expose": {
                         "window": "domplate"
@@ -26,7 +26,7 @@ describe("Suite", function() {
                 }
             },
             "/": [
-                '<script src="/dist/domplate.js"></script>',
+                '<script src="/dist/domplate-eval.js"></script>',
                 '<div></div>',
                 '<script>',
                 'var rep = window.domplate.domplate({',
