@@ -4,7 +4,7 @@ Domplate
 JavaScript Template Library originally used in Mozilla Firebug.
 
   * Client-side compile using `eval()`
-  * Optional server-side compile to execute on client without `eval()`
+  * Optional server-side compile to render on client without `eval()`
 
 
 Example
