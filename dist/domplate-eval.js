@@ -80,9 +80,12 @@ var DomplateDebug = exports.DomplateDebug = {
 },{}],2:[function(require,module,exports){
 "use strict";
 
+module.exports = require("./domplate");
+},{"./domplate":3}],3:[function(require,module,exports){
+"use strict";
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-var EVAL = require("./explicit-unsafe-eval");
 var RT = require("./rt");
 
 var DomplateDebug = exports.DomplateDebug = require("./debug").DomplateDebug;
@@ -92,7 +95,7 @@ Renderer.DomplateDebug = DomplateDebug;
 
 function Domplate(exports) {
 
-    exports.EVAL = EVAL;
+    exports.EVAL = require("./explicit-unsafe-eval");
 
     /**
      * Original source by Joe Hewitt (http://joehewitt.com/).
@@ -264,6 +267,8 @@ function Domplate(exports) {
             this.compileMarkup();
             this.compileDOM();
 
+            this.subject.DomplateDebug = DomplateDebug;
+
             DomplateDebug.endGroup();
         },
 
@@ -284,8 +289,8 @@ function Domplate(exports) {
                 fnBlock.push(', s', i);
             }fnBlock.push(') {');
 
-            fnBlock.push('  DomplateDebug.startGroup([\' .. Run Markup .. \',\'' + this.tagName + '\'],arguments);');
-            fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
+            //        fnBlock.push('  DomplateDebug.startGroup([\' .. Run Markup .. \',\''+this.tagName+'\'],arguments);');
+            //       fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
 
             if (this.subject) fnBlock.push('  with (this) {');
             if (this.context) fnBlock.push('  with (__context__) {');
@@ -296,7 +301,7 @@ function Domplate(exports) {
             if (this.subject) fnBlock.push('  }');
             if (this.context) fnBlock.push('  }');
 
-            fnBlock.push('DomplateDebug.endGroup();');
+            //        fnBlock.push('DomplateDebug.endGroup();');
 
             fnBlock.push('}})');
 
@@ -307,11 +312,11 @@ function Domplate(exports) {
             DomplateDebug.logVar('js', js);
 
             // Inject the compiled JS so we can view it later in the console when the code runs     
-            js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
+            //        js = js.replace('__SELF__JS__',js.replace(/\'/g,'\\\''));
 
             //system.print(js,'JS');
 
-            this.renderMarkup = EVAL.compileMarkup(js, RT.makeMarkupRuntime({
+            this.renderMarkup = exports.EVAL.compileMarkup(js, RT.makeMarkupRuntime({
                 DomplateDebug: DomplateDebug,
                 self: self,
                 compiled: this.subject.tag__markup
@@ -431,9 +436,10 @@ function Domplate(exports) {
                 fnBlock.push(', ', 'd' + i);
             }fnBlock.push(') {');
 
-            fnBlock.push('  DomplateDebug.startGroup([\' .. Run DOM .. \',\'' + this.tagName + '\'],arguments);');
+            //        fnBlock.push('  DomplateDebug.startGroup([\' .. Run DOM .. \',\''+this.tagName+'\'],arguments);');
 
-            fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
+            //        fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
+
 
             for (var i = 0; i < path.loopIndex; ++i) {
                 fnBlock.push('  var l', i, ' = 0;');
@@ -446,7 +452,7 @@ function Domplate(exports) {
             }
             if (this.context) {
                 fnBlock.push('    with (context) {');
-                fnBlock.push('      DomplateDebug.logVar(\'context\',context);');
+                //            fnBlock.push('      DomplateDebug.logVar(\'context\',context);');
             }
 
             fnBlock.push(blocks.join(""));
@@ -454,7 +460,7 @@ function Domplate(exports) {
             if (this.context) fnBlock.push('    }');
             if (this.subject) fnBlock.push('  }');
 
-            fnBlock.push('  DomplateDebug.endGroup();');
+            //        fnBlock.push('  DomplateDebug.endGroup();');
 
             fnBlock.push('  return ', nodeCount, ';');
             fnBlock.push('})');
@@ -466,9 +472,9 @@ function Domplate(exports) {
             DomplateDebug.logVar('js', js);
 
             // Inject the compiled JS so we can view it later in the console when the code runs     
-            js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
+            //        js = js.replace('__SELF__JS__',js.replace(/\'/g,'\\\''));
 
-            this.renderDOM = EVAL.compileDOM(js, RT.makeDOMRuntime({
+            this.renderDOM = exports.EVAL.compileDOM(js, RT.makeDOMRuntime({
                 DomplateDebug: DomplateDebug,
                 compiled: this.subject.tag__dom
             }));
@@ -956,7 +962,9 @@ function Domplate(exports) {
                         }
                     }
 
-                    if (escapeIt) vals.push("__escape__(" + partName + ")");else vals.push(partName);
+                    if (escapeIt) {
+                        vals.push("__escape__(" + partName + ")");
+                    } else vals.push(partName);
                 } else vals.push('"' + part + '"');
             }
         } else if (isTag(val)) {
@@ -1039,7 +1047,40 @@ exports.domplate.loadRep = function (url, successCallback, errorCallback) {
         successCallback(rep);
     }, errorCallback);
 };
-},{"./debug":1,"./renderer":3,"./rt":4,"pinf-loader-js":5}],3:[function(require,module,exports){
+},{"./debug":1,"./explicit-unsafe-eval":4,"./renderer":5,"./rt":6,"pinf-loader-js":7}],4:[function(require,module,exports){
+
+exports.compileMarkup = function (code, context) {
+
+    if (exports.onMarkupCode) {
+        exports.onMarkupCode(code);
+    }
+
+    var DomplateDebug = context.DomplateDebug;
+    var __escape__ = context.__escape__;
+    var __if__ = context.__if__;
+    var __loop__ = context.__loop__;
+    var __link__ = context.__link__;
+
+    return window.eval(code);
+};
+
+exports.compileDOM = function (code, context) {
+
+    if (exports.onDOMCode) {
+        exports.onDOMCode(code);
+    }
+
+    var DomplateDebug = context.DomplateDebug;
+    var __path__ = context.__path__;
+    var __bind__ = context.__bind__;
+    var __if__ = context.__if__;
+    var __link__ = context.__link__;
+    var __loop__ = context.__loop__;
+
+    return window.eval(code);
+};
+
+},{}],5:[function(require,module,exports){
 'use strict';
 
 var Renderer = exports.Renderer = {
@@ -1223,7 +1264,7 @@ var Renderer = exports.Renderer = {
         return html;
     }
 };
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -1236,7 +1277,7 @@ exports.makeMarkupRuntime = function (context) {
 
     exports.compiled = context.compiled || null;
 
-    exports.DomplateDebug = context.DomplateDebug;
+    var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
     exports.__link__ = function (tag, code, outputs, args) {
         if (!tag) {
@@ -1341,7 +1382,7 @@ exports.makeDOMRuntime = function (context) {
 
     exports.compiled = context.compiled || null;
 
-    exports.DomplateDebug = context.DomplateDebug;
+    var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
     exports.__bind__ = function (object, fn) {
         return function (event) {
@@ -1444,7 +1485,7 @@ exports.makeDOMRuntime = function (context) {
 
     return exports;
 };
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * [Free Public License 1.0.0](https://opensource.org/licenses/FPL-1.0.0)
