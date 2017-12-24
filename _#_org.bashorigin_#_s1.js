@@ -28,12 +28,12 @@ exports.forConfig = function (CONFIG) {
         return config;
     }
 
-    function compileIfDesired (code, callback) {
+    function compileIfDesired (code, struct, callback) {
         if (CONFIG.compile !== true) {
-            return callback(null, code);
+            return callback(null, null);
         }
         try {
-            const dom = new LIB.JSDOM.JSDOM(`
+            new LIB.JSDOM.JSDOM(`
                 <head>
                     <script src="file://${baseDistPath}/domplate.js"></script>
                 </head>
@@ -45,12 +45,9 @@ exports.forConfig = function (CONFIG) {
                         var PINF = {
                             bundle: function (id, modules) {
                                 window.PINF.sandbox(modules, function (sandbox) {
-                                    var rep = sandbox.main();
-                                    rep.tag.replace({
-                                        message: "Hello World"
-                                    }, document.querySelector("DIV"));
+                                    var rep = sandbox.main();                                    
 
-console.error(document.querySelector("DIV").innerHTML);
+                                    window.ready(rep);
                                 });
                             }
                         };
@@ -61,17 +58,35 @@ console.error(document.querySelector("DIV").innerHTML);
                 </body>
             `, {
                 runScripts: "dangerously",
-                resources: "usable"
+                resources: "usable",
+                beforeParse: function (window) {
+
+                    window.ready = function (rep) {
+
+                        var el = window.document.querySelector("DIV");
+
+                        var info = {
+                            markup: null,
+                            dom: null,
+                            preview: null
+                        }
+
+                        window.domplate.EVAL.onMarkupCode = function (code) {
+                            info.markup = code;
+                        };
+
+                        window.domplate.EVAL.onDOMCode = function (code) {
+                            info.dom = code;
+                        };
+                            
+                        rep.tag.replace(struct, el);
+
+                        info.preview = el.innerHTML;
+
+                        return callback(null, info);
+                    }                        
+                }
             });
-
-//console.log("TEST CONTENT:", dom.window.domplate);
-
-// TODO: wait for the complication    
-            
-            return callback(null, code);
-
-    //        throw new Error("STOP");
-            return code;
         } catch (err) {
             return callback(err);
         }
@@ -93,6 +108,12 @@ console.error(document.querySelector("DIV").innerHTML);
         function getBundleCode (callback) {
             try {
                 var repCode = CONFIG.reps[uri];
+
+                var struct = repCode.struct || null;
+                if (struct && repCode.rep) {
+                    repCode = repCode.rep;
+                }
+
                 var repCodeSrcPath = false;
                 if (/^\//.test(repCode)) {
                     repCodeSrcPath = repCode;
@@ -129,7 +150,10 @@ console.error(document.querySelector("DIV").innerHTML);
                     '}',
                     'exports.main = function () {',
                         'var domplate = window.domplate;',
-                        'return domplate.domplate(impl(domplate));',
+                        'var rep = impl(domplate);',
+                        'rep.tag__dom = "%%DOM%%";',
+                        'rep.tag__markup = "%%MARKUP%%";',
+                        'return domplate.domplate(rep);',
                     '}'
                 ].join("\n");
 
@@ -151,10 +175,37 @@ console.error(document.querySelector("DIV").innerHTML);
                 implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
                     if (err) return callback(err);
 
-                    compileIfDesired(repCode, function (err, repCode) {
+                    repCode = repCode.replace(/"use strict";/g, "");
+
+                    compileIfDesired(repCode, struct, function (err, result) {
                         if (err) return callback(err);
 
-                        return callback(null, repCode);
+                        var repBuild = repCode;
+                        if (result) {
+                            repBuild = repBuild.replace(/"%%DOM%%"/, [
+                                'function () {',
+                                    'return ' + result.dom,
+                                '}'
+                            ].join("\n"));
+                            repBuild = repBuild.replace(/"%%MARKUP%%"/, [
+                                'function () {',
+                                    'return ' + result.markup,
+                                '}'
+                            ].join("\n"));
+
+                            FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), repBuild, "utf8");
+                            FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".preview.htm"), [
+                                '<html>',
+                                '<body>',
+                                '',
+                                result.preview,
+                                '',
+                                '</body>',
+                                '</html>'
+                            ].join("\n"), "utf8");
+                        }
+
+                        return callback(null, repBuild);
                     });
                 });
 
@@ -167,7 +218,6 @@ console.error(document.querySelector("DIV").innerHTML);
             baseDistPath &&
             CONFIG.prime
         ) {
-
             if (process.env.VERBOSE) console.log("[domplate] Prime ...");
 
             getBundleCode(function (err, bundleCode) {

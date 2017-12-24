@@ -43,7 +43,8 @@ describe("Suite", function() {
     it('Test', function (client) {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
-
+        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
+        
         var selector = 'BODY DIV';
 
         client.waitForElementPresent(selector, 3000);
@@ -51,6 +52,8 @@ describe("Suite", function() {
         client.expect.element(selector).text.to.contain([
             'Hello World!'
         ].join("\n"));
+
+        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
 
     });
 });

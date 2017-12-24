@@ -16,11 +16,30 @@ describe("Suite", function() {
                 "@github.com~cadorn~domplate#s1": {
                     "compile": true,
                     "reps": {
-                        "announcer": function /*CodeBlock */ () {
+                        "announcer1": {
+                            struct: {
+                                message: "Hello World"
+                            },
+                            rep: function /*CodeBlock */ () {
 
-                            return {
-                                tag: domplate.tags.DIV("$message")
-                            };
+                                return {
+                                    tag: domplate.tags.DIV("$message")
+                                };
+                            }
+                        },
+                        "announcer2": {
+                            struct: {
+                                message: "Hello World"
+                            },
+                            rep: function /*CodeBlock */ () {
+
+                                return {
+                                    tag: domplate.tags.DIV({
+                                        border: "1px solid black",
+                                        padding: "5px"
+                                    }, domplate.tags.DIV("$message"))
+                                };
+                            }
                         }
                     }
                 }
@@ -29,11 +48,17 @@ describe("Suite", function() {
                 '<head>',
                     '<script src="/reps/domplate.js"></script>',
                 '</head>',
-                '<body><div></div></body>',
+                '<body>',
+                    '<div id="announcer1"></div>',
+                    '<div id="announcer2"></div>',
+                '</body>',
                 '<script>',
-                'window.domplate.loadRep("/reps/announcer", function (rep) {',
-                    'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV"));',
-                '}, console.error);',
+                    'window.domplate.loadRep("/reps/announcer1", function (rep) {',
+                        'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer1"));',
+                    '}, console.error);',
+                    'window.domplate.loadRep("/reps/announcer2", function (rep) {',
+                        'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer2"));',
+                    '}, console.error);',
                 '</script>'
             ].join("\n")
         }
@@ -45,7 +70,10 @@ describe("Suite", function() {
 if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
         
         client.waitForElementPresent('BODY', 3000);
-        client.expect.element('BODY').text.to.contain([
+        client.expect.element('BODY DIV#announcer1').text.to.contain([
+            'Hello World!'
+        ].join(""));
+        client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World!'
         ].join(""));
 

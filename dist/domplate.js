@@ -2,11 +2,97 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mainModule = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var DomplateDebug = exports.DomplateDebug = {
+
+    enabled: false,
+    console: null,
+
+    replaceInstance: function replaceInstance(instance) {
+        DomplateDebug = instance;
+    },
+
+    setEnabled: function setEnabled(enabled) {
+        this.enabled = enabled;
+    },
+
+    setConsole: function setConsole(console) {
+        this.console = console;
+    },
+
+    log: function log(label, value) {
+        if (!this.enabled) return;
+        if (arguments.length == 2) {
+            this.console.log(label + ': ', value);
+        } else {
+            this.console.log(label);
+        }
+    },
+    logVar: function logVar(label, value) {
+        if (!this.enabled) return;
+        this.console.log(label + ': ', [value]);
+    },
+    logInfo: function logInfo(message) {
+        if (!this.enabled) return;
+        this.console.info(message);
+    },
+    logWarn: function logWarn(message) {
+        if (!this.enabled) return;
+        this.console.warn(message);
+    },
+    logJs: function logJs(label, value) {
+        if (!this.enabled) return;
+        value = value.replace(/;/g, ';\n');
+        value = value.replace(/{/g, '{\n');
+        this.console.info(value);
+    },
+    reformatArguments: function reformatArguments(args) {
+        if (!this.enabled) return;
+        var returnVar = new Array();
+        for (var i = 0; i < args.length; ++i) {
+            var index = args[i];
+            returnVar.push([index]);
+        }
+        return { 'arguments': returnVar };
+    },
+    startGroup: function startGroup(label, args) {
+        if (!this.enabled) return;
+        if (this.isArray(label)) {
+            label.splice(1, 0, ' - ');
+            this.console.group.apply(this, label);
+        } else {
+            this.console.group(label);
+        }
+        if (args != null) {
+            this.logVar('ARGUMENTS', DomplateDebug.reformatArguments(args));
+        }
+    },
+    endGroup: function endGroup() {
+        if (!this.enabled) return;
+        this.console.groupEnd();
+    },
+    isArray: function isArray(obj) {
+        if (obj.constructor.toString().indexOf("Array") != -1) {
+            return true;
+        }
+        return false;
+    }
+};
+},{}],2:[function(require,module,exports){
+"use strict";
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var EVAL = require("./explicit-unsafe-eval");
+var RT = require("./rt");
+
+var DomplateDebug = exports.DomplateDebug = require("./debug").DomplateDebug;
+
+var Renderer = exports.Renderer = require("./renderer").Renderer;
+Renderer.DomplateDebug = DomplateDebug;
 
 function Domplate(exports) {
+
+    exports.EVAL = EVAL;
 
     /**
      * Original source by Joe Hewitt (http://joehewitt.com/).
@@ -64,86 +150,7 @@ function Domplate(exports) {
         }
     }
 
-    // * DEBUG * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-    var DomplateDebug;
-    DomplateDebug = exports.DomplateDebug = {
-
-        enabled: false,
-        console: null,
-
-        replaceInstance: function replaceInstance(instance) {
-            DomplateDebug = instance;
-        },
-
-        setEnabled: function setEnabled(enabled) {
-            this.enabled = enabled;
-        },
-
-        setConsole: function setConsole(console) {
-            this.console = console;
-        },
-
-        log: function log(label, value) {
-            if (!this.enabled) return;
-            if (arguments.length == 2) {
-                this.console.log(label + ': ', value);
-            } else {
-                this.console.log(label);
-            }
-        },
-        logVar: function logVar(label, value) {
-            if (!this.enabled) return;
-            this.console.log(label + ': ', [value]);
-        },
-        logInfo: function logInfo(message) {
-            if (!this.enabled) return;
-            this.console.info(message);
-        },
-        logWarn: function logWarn(message) {
-            if (!this.enabled) return;
-            this.console.warn(message);
-        },
-        logJs: function logJs(label, value) {
-            if (!this.enabled) return;
-            value = value.replace(/;/g, ';\n');
-            value = value.replace(/{/g, '{\n');
-            this.console.info(value);
-        },
-        reformatArguments: function reformatArguments(args) {
-            if (!this.enabled) return;
-            var returnVar = new Array();
-            for (var i = 0; i < args.length; ++i) {
-                var index = args[i];
-                returnVar.push([index]);
-            }
-            return { 'arguments': returnVar };
-        },
-        startGroup: function startGroup(label, args) {
-            if (!this.enabled) return;
-            if (this.isArray(label)) {
-                label.splice(1, 0, ' - ');
-                this.console.group.apply(this, label);
-            } else {
-                this.console.group(label);
-            }
-            if (args != null) {
-                this.logVar('ARGUMENTS', DomplateDebug.reformatArguments(args));
-            }
-        },
-        endGroup: function endGroup() {
-            if (!this.enabled) return;
-            this.console.groupEnd();
-        },
-        isArray: function isArray(obj) {
-            if (obj.constructor.toString().indexOf("Array") != -1) {
-                return true;
-            }
-            return false;
-        }
-        // * DEBUG * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-
-    };var womb = null;
+    var womb = null;
 
     var domplate = exports.domplate = function () {
         var lastSubject;
@@ -195,7 +202,7 @@ function Domplate(exports) {
             this.vars = oldTag ? copyArray(oldTag.vars) : [];
 
             var attrs = args.length ? args[0] : null;
-            var hasAttrs = (typeof attrs === 'undefined' ? 'undefined' : _typeof(attrs)) == "object" && !isTag(attrs);
+            var hasAttrs = (typeof attrs === "undefined" ? "undefined" : _typeof(attrs)) == "object" && !isTag(attrs);
 
             this.resources = {};
             this.children = [];
@@ -294,99 +301,6 @@ function Domplate(exports) {
             fnBlock.push('}})');
 
             var self = this;
-            function __link__(tag, code, outputs, args) {
-                if (!tag) {
-                    DomplateDebug.logWarn('tag not defined');
-                    return;
-                }
-                if (!tag.tag) {
-                    DomplateDebug.logVar('tag', tag);
-                    DomplateDebug.logWarn('tag.tag not defined');
-                    return;
-                }
-
-                tag.tag.compile();
-
-                // merge resources from sub-tags
-                if (self.resources && tag.tag.resources && tag.tag.resources !== self.resources) {
-                    for (var key in tag.tag.resources) {
-                        self.resources[key] = tag.tag.resources[key];
-                    }
-                }
-
-                var tagOutputs = [];
-                var markupArgs = [code, tag.tag.context ? tag.tag.context : null, args, tagOutputs];
-                markupArgs.push.apply(markupArgs, tag.tag.markupArgs);
-                tag.tag.renderMarkup.apply(tag.tag.subject, markupArgs);
-
-                outputs.push(tag);
-                outputs.push(tagOutputs);
-            }
-
-            function __escape__(value) {
-                function replaceChars(ch) {
-                    switch (ch) {
-                        case "<":
-                            return "&lt;";
-                        case ">":
-                            return "&gt;";
-                        case "&":
-                            return "&amp;";
-                        case "'":
-                            return "&#39;";
-                        case '"':
-                            return "&quot;";
-                    }
-                    return "?";
-                };
-                return String(value).replace(/[<>&"']/g, replaceChars);
-            }
-
-            function __loop__(iter, outputs, fn) {
-                var iterOuts = [];
-                outputs.push(iterOuts);
-
-                if (iter instanceof Array || typeof iter === "array" || Array.isArray(iter)) {
-                    iter = new ArrayIterator(iter);
-                }
-
-                try {
-                    if (!iter || !iter.next) {
-                        console.error("Cannot iterate loop", iter, typeof iter === 'undefined' ? 'undefined' : _typeof(iter), outputs, fn);
-                        throw new Exception("Cannot iterate loop as iter.next() method is not defined");
-                    }
-                    while (1) {
-                        var value = iter.next();
-                        var itemOuts = [0, 0];
-                        iterOuts.push(itemOuts);
-                        fn.apply(this, [value, itemOuts]);
-                    }
-                } catch (exc) {
-                    if (exc != StopIteration) throw exc;
-                }
-            }
-
-            function __if__(booleanVar, outputs, fn) {
-                // "outputs" is what gets passed to the compiled DOM when it runs.
-                // It is used by the dom to make decisions as to how many times to
-                // run children for FOR loops etc ...
-                // For the IF feature we set a 1 or 0 depending on whether
-                // the sub template ran or not. If it did not run then no HTML
-                // markup was generated and accordingly the DOM elements should and
-                // can not be traversed.
-
-                var ifControl = [];
-                outputs.push(ifControl);
-
-                DomplateDebug.logVar('j  .. booleanVar', booleanVar);
-
-                if (booleanVar) {
-                    ifControl.push(1);
-                    fn.apply(this, [ifControl]);
-                } else {
-                    ifControl.push(0);
-                }
-            }
 
             var js = fnBlock.join("");
 
@@ -397,13 +311,10 @@ function Domplate(exports) {
 
             //system.print(js,'JS');
 
-            this.renderMarkup = EVAL.compileMarkup(js, {
+            this.renderMarkup = EVAL.compileMarkup(js, RT.makeMarkupRuntime({
                 DomplateDebug: DomplateDebug,
-                __escape__: __escape__,
-                __if__: __if__,
-                __loop__: __loop__,
-                __link__: __link__
-            });
+                self: self
+            }));
 
             DomplateDebug.endGroup();
         },
@@ -547,105 +458,7 @@ function Domplate(exports) {
             fnBlock.push('  return ', nodeCount, ';');
             fnBlock.push('})');
 
-            function __bind__(object, fn) {
-                return function (event) {
-                    return fn.apply(object, [event]);
-                };
-            }
-
-            function __link__(node, tag, args) {
-                DomplateDebug.startGroup('__link__', arguments);
-
-                if (!tag) {
-                    DomplateDebug.logWarn('tag not defined');
-                    return;
-                }
-                if (!tag.tag) {
-                    DomplateDebug.logVar('tag', tag);
-                    DomplateDebug.logWarn('tag.tag not defined');
-                    return;
-                }
-
-                tag.tag.compile();
-
-                var domArgs = [node, tag.tag.context ? tag.tag.context : null, 0];
-                domArgs.push.apply(domArgs, tag.tag.domArgs);
-                domArgs.push.apply(domArgs, args);
-
-                var oo = tag.tag.renderDOM.apply(tag.tag.subject, domArgs);
-
-                DomplateDebug.endGroup();
-
-                return oo;
-            }
-
             var self = this;
-            function __loop__(iter, fn) {
-                DomplateDebug.startGroup('__loop__', arguments);
-                DomplateDebug.logVar('iter', iter);
-                DomplateDebug.logVar('fn', fn);
-
-                var nodeCount = 0;
-                for (var i = 0; i < iter.length; ++i) {
-                    iter[i][0] = i;
-                    iter[i][1] = nodeCount;
-                    nodeCount += fn.apply(this, iter[i]);
-
-                    DomplateDebug.logVar(' .. nodeCount', nodeCount);
-                }
-
-                DomplateDebug.logVar('iter', iter);
-
-                DomplateDebug.endGroup();
-
-                return nodeCount;
-            }
-
-            function __if__(control, fn) {
-                DomplateDebug.startGroup('__if__', arguments);
-
-                DomplateDebug.logVar('control', control);
-                DomplateDebug.logVar('fn', fn);
-
-                // Check the control structure to see if we should run the IF
-                if (control && control[0]) {
-                    // Lets run it
-                    // TODO: If in debug mode add info about the IF expression that caused the running
-                    DomplateDebug.logInfo('Running IF');
-                    fn.apply(this, [0, control[1]]);
-                } else {
-                    // We need to skip it
-                    // TODO: If in debug mode add info about the IF expression that caused the skip
-                    DomplateDebug.logInfo('Skipping IF');
-                }
-
-                DomplateDebug.endGroup();
-            }
-
-            function __path__(parent, offset) {
-                DomplateDebug.startGroup('__path__', arguments);
-                DomplateDebug.logVar('parent', parent);
-
-                var root = parent;
-
-                for (var i = 2; i < arguments.length; ++i) {
-                    var index = arguments[i];
-
-                    if (i == 3) index += offset;
-
-                    if (index == -1) {
-                        parent = parent.parentNode;
-                    } else {
-                        // NOTE: If `DIV(IF(...), FOR(...))` then `parent` is null because of an offset issue with IF(). Cannot figure it out.
-                        // WORKAROUND: `DIV(DIV(IF(...)), FOR(...))`
-                        parent = parent.childNodes[index];
-                    }
-                }
-
-                DomplateDebug.endGroup();
-
-                return parent;
-            }
 
             var js = fnBlock.join("");
 
@@ -654,14 +467,9 @@ function Domplate(exports) {
             // Inject the compiled JS so we can view it later in the console when the code runs     
             js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
 
-            this.renderDOM = EVAL.compileDOM(js, {
-                DomplateDebug: DomplateDebug,
-                __path__: __path__,
-                __bind__: __bind__,
-                __if__: __if__,
-                __link__: __link__,
-                __loop__: __loop__
-            });
+            this.renderDOM = EVAL.compileDOM(js, RT.makeDOMRuntime({
+                DomplateDebug: DomplateDebug
+            }));
 
             DomplateDebug.endGroup();
         },
@@ -1195,188 +1003,6 @@ function Domplate(exports) {
 
     // ************************************************************************************************
 
-    var Renderer = {
-        checkDebug: function checkDebug() {
-            DomplateDebug.enabled = this.tag.subject._debug || false;
-        },
-
-        renderHTML: function renderHTML(args, outputs, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.renderHTML', arguments);
-
-            var code = [];
-            var markupArgs = [code, this.tag.context ? this.tag.context : null, args, outputs];
-            markupArgs.push.apply(markupArgs, this.tag.markupArgs);
-            this.tag.renderMarkup.apply(self ? self : this.tag.subject, markupArgs);
-
-            if (this.tag.resources && this.tag.subject._resourceListener) {
-                this.tag.subject._resourceListener.register(this.tag.resources);
-            }
-
-            DomplateDebug.endGroup();
-            return code.join("");
-        },
-
-        insertRows: function insertRows(args, before, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.insertRows', arguments);
-
-            this.tag.compile();
-
-            var outputs = [];
-            var html = this.renderHTML(args, outputs, self);
-
-            var doc = before.ownerDocument;
-            var table = doc.createElement("table");
-            table.innerHTML = html;
-
-            var tbody = table.firstChild;
-            var parent = before.localName == "TR" ? before.parentNode : before;
-            var after = before.localName == "TR" ? before.nextSibling : null;
-
-            var firstRow = tbody.firstChild,
-                lastRow;
-            while (tbody.firstChild) {
-                lastRow = tbody.firstChild;
-                if (after) parent.insertBefore(lastRow, after);else parent.appendChild(lastRow);
-            }
-
-            var offset = 0;
-            if (before.localName == "TR") {
-                var node = firstRow.parentNode.firstChild;
-                for (; node && node != firstRow; node = node.nextSibling) {
-                    ++offset;
-                }
-            }
-
-            var domArgs = [firstRow, this.tag.context, offset];
-            domArgs.push.apply(domArgs, this.tag.domArgs);
-            domArgs.push.apply(domArgs, outputs);
-
-            this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-
-            DomplateDebug.endGroup();
-            return [firstRow, lastRow];
-        },
-
-        insertAfter: function insertAfter(args, before, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.insertAfter', arguments);
-
-            this.tag.compile();
-
-            var outputs = [];
-            var html = this.renderHTML(args, outputs, self);
-
-            var doc = before.ownerDocument;
-            var range = doc.createRange();
-            range.selectNode(doc.body);
-            var frag = range.createContextualFragment(html);
-
-            var root = frag.firstChild;
-            if (before.nextSibling) before.parentNode.insertBefore(frag, before.nextSibling);else before.parentNode.appendChild(frag);
-
-            var domArgs = [root, this.tag.context, 0];
-            domArgs.push.apply(domArgs, this.tag.domArgs);
-            domArgs.push.apply(domArgs, outputs);
-
-            this.tag.renderDOM.apply(self ? self : this.tag.subject ? this.tag.subject : null, domArgs);
-
-            DomplateDebug.endGroup();
-
-            return root;
-        },
-
-        replace: function replace(args, parent, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.replace', arguments);
-
-            this.tag.compile();
-
-            var outputs = [];
-            var html = this.renderHTML(args, outputs, self);
-
-            var root;
-            if (parent.nodeType == 1) {
-                parent.innerHTML = html;
-                root = parent.firstChild;
-            } else {
-                if (!parent || parent.nodeType != 9) parent = document;
-
-                if (!womb || womb.ownerDocument != parent) womb = parent.createElement("div");
-                womb.innerHTML = html;
-
-                root = womb.firstChild;
-                //womb.removeChild(root);
-            }
-
-            var domArgs = [root, this.tag.context ? this.tag.context : null, 0];
-            domArgs.push.apply(domArgs, this.tag.domArgs);
-            domArgs.push.apply(domArgs, outputs);
-            this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-
-            DomplateDebug.endGroup();
-
-            return root;
-        },
-
-        append: function append(args, parent, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.append', arguments);
-
-            this.tag.compile();
-
-            var outputs = [];
-            var html = this.renderHTML(args, outputs, self);
-
-            DomplateDebug.logVar('outputs', outputs);
-
-            DomplateDebug.logVar('html', html);
-
-            if (!womb || womb.ownerDocument != parent.ownerDocument) womb = parent.ownerDocument.createElement("div");
-
-            DomplateDebug.logVar('womb', womb);
-            womb.innerHTML = html;
-
-            root = womb.firstChild;
-            while (womb.firstChild) {
-                parent.appendChild(womb.firstChild);
-            }var domArgs = [root, this.tag.context, 0];
-            domArgs.push.apply(domArgs, this.tag.domArgs);
-            domArgs.push.apply(domArgs, outputs);
-
-            DomplateDebug.logVar('this.tag.subject', this.tag.subject);
-            DomplateDebug.logVar('self', self);
-            DomplateDebug.logVar('domArgs', domArgs);
-
-            this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-
-            DomplateDebug.endGroup();
-
-            return root;
-        },
-
-        render: function render(args, self) {
-            this.checkDebug();
-
-            DomplateDebug.startGroup('Renderer.render', arguments);
-
-            this.tag.compile();
-
-            var outputs = [];
-            var html = this.renderHTML(args, outputs, self);
-
-            DomplateDebug.endGroup();
-
-            return html;
-        }
-    };
-
     // ************************************************************************************************
 
 
@@ -1411,7 +1037,7 @@ exports.domplate.loadRep = function (url, successCallback, errorCallback) {
         successCallback(rep);
     }, errorCallback);
 };
-},{"./explicit-unsafe-eval":2,"pinf-loader-js":3}],2:[function(require,module,exports){
+},{"./debug":1,"./explicit-unsafe-eval":3,"./renderer":4,"./rt":5,"pinf-loader-js":6}],3:[function(require,module,exports){
 
 exports.compileMarkup = function (code, context) {
     var DomplateDebug = context.DomplateDebug;
@@ -1419,6 +1045,10 @@ exports.compileMarkup = function (code, context) {
     var __if__ = context.__if__;
     var __loop__ = context.__loop__;
     var __link__ = context.__link__;
+
+    if (exports.onMarkupCode) {
+        exports.onMarkupCode(code);
+    }
 
     return eval(code);
 };
@@ -1431,10 +1061,415 @@ exports.compileDOM = function (code, context) {
     var __link__ = context.__link__;
     var __loop__ = context.__loop__;
 
+    if (exports.onDOMCode) {
+        exports.onDOMCode(code);
+    }
+    
     return eval(code);
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+'use strict';
+
+var Renderer = exports.Renderer = {
+    checkDebug: function checkDebug() {
+        exports.Renderer.DomplateDebug.enabled = this.tag.subject._debug || false;
+    },
+
+    renderHTML: function renderHTML(args, outputs, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.renderHTML', arguments);
+
+        var code = [];
+        var markupArgs = [code, this.tag.context ? this.tag.context : null, args, outputs];
+        markupArgs.push.apply(markupArgs, this.tag.markupArgs);
+        this.tag.renderMarkup.apply(self ? self : this.tag.subject, markupArgs);
+
+        if (this.tag.resources && this.tag.subject._resourceListener) {
+            this.tag.subject._resourceListener.register(this.tag.resources);
+        }
+
+        exports.Renderer.DomplateDebug.endGroup();
+        return code.join("");
+    },
+
+    insertRows: function insertRows(args, before, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.insertRows', arguments);
+
+        this.tag.compile();
+
+        var outputs = [];
+        var html = this.renderHTML(args, outputs, self);
+
+        var doc = before.ownerDocument;
+        var table = doc.createElement("table");
+        table.innerHTML = html;
+
+        var tbody = table.firstChild;
+        var parent = before.localName == "TR" ? before.parentNode : before;
+        var after = before.localName == "TR" ? before.nextSibling : null;
+
+        var firstRow = tbody.firstChild,
+            lastRow;
+        while (tbody.firstChild) {
+            lastRow = tbody.firstChild;
+            if (after) parent.insertBefore(lastRow, after);else parent.appendChild(lastRow);
+        }
+
+        var offset = 0;
+        if (before.localName == "TR") {
+            var node = firstRow.parentNode.firstChild;
+            for (; node && node != firstRow; node = node.nextSibling) {
+                ++offset;
+            }
+        }
+
+        var domArgs = [firstRow, this.tag.context, offset];
+        domArgs.push.apply(domArgs, this.tag.domArgs);
+        domArgs.push.apply(domArgs, outputs);
+
+        this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
+
+        exports.Renderer.DomplateDebug.endGroup();
+        return [firstRow, lastRow];
+    },
+
+    insertAfter: function insertAfter(args, before, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.insertAfter', arguments);
+
+        this.tag.compile();
+
+        var outputs = [];
+        var html = this.renderHTML(args, outputs, self);
+
+        var doc = before.ownerDocument;
+        var range = doc.createRange();
+        range.selectNode(doc.body);
+        var frag = range.createContextualFragment(html);
+
+        var root = frag.firstChild;
+        if (before.nextSibling) before.parentNode.insertBefore(frag, before.nextSibling);else before.parentNode.appendChild(frag);
+
+        var domArgs = [root, this.tag.context, 0];
+        domArgs.push.apply(domArgs, this.tag.domArgs);
+        domArgs.push.apply(domArgs, outputs);
+
+        this.tag.renderDOM.apply(self ? self : this.tag.subject ? this.tag.subject : null, domArgs);
+
+        exports.Renderer.DomplateDebug.endGroup();
+
+        return root;
+    },
+
+    replace: function replace(args, parent, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.replace', arguments);
+
+        this.tag.compile();
+
+        var outputs = [];
+        var html = this.renderHTML(args, outputs, self);
+
+        var root;
+        if (parent.nodeType == 1) {
+            parent.innerHTML = html;
+            root = parent.firstChild;
+        } else {
+            if (!parent || parent.nodeType != 9) parent = document;
+
+            if (!womb || womb.ownerDocument != parent) womb = parent.createElement("div");
+            womb.innerHTML = html;
+
+            root = womb.firstChild;
+            //womb.removeChild(root);
+        }
+
+        var domArgs = [root, this.tag.context ? this.tag.context : null, 0];
+        domArgs.push.apply(domArgs, this.tag.domArgs);
+        domArgs.push.apply(domArgs, outputs);
+        this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
+
+        exports.Renderer.DomplateDebug.endGroup();
+
+        return root;
+    },
+
+    append: function append(args, parent, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.append', arguments);
+
+        this.tag.compile();
+
+        var outputs = [];
+        var html = this.renderHTML(args, outputs, self);
+
+        exports.Renderer.DomplateDebug.logVar('outputs', outputs);
+
+        exports.Renderer.DomplateDebug.logVar('html', html);
+
+        if (!womb || womb.ownerDocument != parent.ownerDocument) womb = parent.ownerDocument.createElement("div");
+
+        exports.Renderer.DomplateDebug.logVar('womb', womb);
+        womb.innerHTML = html;
+
+        root = womb.firstChild;
+        while (womb.firstChild) {
+            parent.appendChild(womb.firstChild);
+        }var domArgs = [root, this.tag.context, 0];
+        domArgs.push.apply(domArgs, this.tag.domArgs);
+        domArgs.push.apply(domArgs, outputs);
+
+        exports.Renderer.DomplateDebug.logVar('this.tag.subject', this.tag.subject);
+        exports.Renderer.DomplateDebug.logVar('self', self);
+        exports.Renderer.DomplateDebug.logVar('domArgs', domArgs);
+
+        this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
+
+        exports.Renderer.DomplateDebug.endGroup();
+
+        return root;
+    },
+
+    render: function render(args, self) {
+        this.checkDebug();
+
+        exports.Renderer.DomplateDebug.startGroup('Renderer.render', arguments);
+
+        this.tag.compile();
+
+        var outputs = [];
+        var html = this.renderHTML(args, outputs, self);
+
+        exports.Renderer.DomplateDebug.endGroup();
+
+        return html;
+    }
+};
+},{}],5:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.makeMarkupRuntime = function (context) {
+
+    var self = context.self;
+
+    var exports = {};
+
+    exports.DomplateDebug = context.DomplateDebug;
+
+    exports.__link__ = function (tag, code, outputs, args) {
+        if (!tag) {
+            DomplateDebug.logWarn('tag not defined');
+            return;
+        }
+        if (!tag.tag) {
+            DomplateDebug.logVar('tag', tag);
+            DomplateDebug.logWarn('tag.tag not defined');
+            return;
+        }
+
+        tag.tag.compile();
+
+        // merge resources from sub-tags
+        if (self.resources && tag.tag.resources && tag.tag.resources !== self.resources) {
+            for (var key in tag.tag.resources) {
+                self.resources[key] = tag.tag.resources[key];
+            }
+        }
+
+        var tagOutputs = [];
+        var markupArgs = [code, tag.tag.context ? tag.tag.context : null, args, tagOutputs];
+        markupArgs.push.apply(markupArgs, tag.tag.markupArgs);
+        tag.tag.renderMarkup.apply(tag.tag.subject, markupArgs);
+
+        outputs.push(tag);
+        outputs.push(tagOutputs);
+    };
+
+    exports.__escape__ = function (value) {
+        function replaceChars(ch) {
+            switch (ch) {
+                case "<":
+                    return "&lt;";
+                case ">":
+                    return "&gt;";
+                case "&":
+                    return "&amp;";
+                case "'":
+                    return "&#39;";
+                case '"':
+                    return "&quot;";
+            }
+            return "?";
+        };
+        return String(value).replace(/[<>&"']/g, replaceChars);
+    };
+
+    exports.__loop__ = function (iter, outputs, fn) {
+        var iterOuts = [];
+        outputs.push(iterOuts);
+
+        if (iter instanceof Array || typeof iter === "array" || Array.isArray(iter)) {
+            iter = new ArrayIterator(iter);
+        }
+
+        try {
+            if (!iter || !iter.next) {
+                console.error("Cannot iterate loop", iter, typeof iter === 'undefined' ? 'undefined' : _typeof(iter), outputs, fn);
+                throw new Exception("Cannot iterate loop as iter.next() method is not defined");
+            }
+            while (1) {
+                var value = iter.next();
+                var itemOuts = [0, 0];
+                iterOuts.push(itemOuts);
+                fn.apply(this, [value, itemOuts]);
+            }
+        } catch (exc) {
+            if (exc != StopIteration) throw exc;
+        }
+    };
+
+    exports.__if__ = function (booleanVar, outputs, fn) {
+        // "outputs" is what gets passed to the compiled DOM when it runs.
+        // It is used by the dom to make decisions as to how many times to
+        // run children for FOR loops etc ...
+        // For the IF feature we set a 1 or 0 depending on whether
+        // the sub template ran or not. If it did not run then no HTML
+        // markup was generated and accordingly the DOM elements should and
+        // can not be traversed.
+
+        var ifControl = [];
+        outputs.push(ifControl);
+
+        DomplateDebug.logVar('j  .. booleanVar', booleanVar);
+
+        if (booleanVar) {
+            ifControl.push(1);
+            fn.apply(this, [ifControl]);
+        } else {
+            ifControl.push(0);
+        }
+    };
+
+    return exports;
+};
+
+exports.makeDOMRuntime = function (context) {
+
+    var exports = {};
+
+    exports.DomplateDebug = context.DomplateDebug;
+
+    exports.__bind__ = function (object, fn) {
+        return function (event) {
+            return fn.apply(object, [event]);
+        };
+    };
+
+    exports.__link__ = function (node, tag, args) {
+        DomplateDebug.startGroup('__link__', arguments);
+
+        if (!tag) {
+            DomplateDebug.logWarn('tag not defined');
+            return;
+        }
+        if (!tag.tag) {
+            DomplateDebug.logVar('tag', tag);
+            DomplateDebug.logWarn('tag.tag not defined');
+            return;
+        }
+
+        tag.tag.compile();
+
+        var domArgs = [node, tag.tag.context ? tag.tag.context : null, 0];
+        domArgs.push.apply(domArgs, tag.tag.domArgs);
+        domArgs.push.apply(domArgs, args);
+
+        var oo = tag.tag.renderDOM.apply(tag.tag.subject, domArgs);
+
+        DomplateDebug.endGroup();
+
+        return oo;
+    };
+
+    exports.__loop__ = function (iter, fn) {
+        DomplateDebug.startGroup('__loop__', arguments);
+        DomplateDebug.logVar('iter', iter);
+        DomplateDebug.logVar('fn', fn);
+
+        var nodeCount = 0;
+        for (var i = 0; i < iter.length; ++i) {
+            iter[i][0] = i;
+            iter[i][1] = nodeCount;
+            nodeCount += fn.apply(this, iter[i]);
+
+            DomplateDebug.logVar(' .. nodeCount', nodeCount);
+        }
+
+        DomplateDebug.logVar('iter', iter);
+
+        DomplateDebug.endGroup();
+
+        return nodeCount;
+    };
+
+    exports.__if__ = function (control, fn) {
+        DomplateDebug.startGroup('__if__', arguments);
+
+        DomplateDebug.logVar('control', control);
+        DomplateDebug.logVar('fn', fn);
+
+        // Check the control structure to see if we should run the IF
+        if (control && control[0]) {
+            // Lets run it
+            // TODO: If in debug mode add info about the IF expression that caused the running
+            DomplateDebug.logInfo('Running IF');
+            fn.apply(this, [0, control[1]]);
+        } else {
+            // We need to skip it
+            // TODO: If in debug mode add info about the IF expression that caused the skip
+            DomplateDebug.logInfo('Skipping IF');
+        }
+
+        DomplateDebug.endGroup();
+    };
+
+    exports.__path__ = function (parent, offset) {
+        DomplateDebug.startGroup('__path__', arguments);
+        DomplateDebug.logVar('parent', parent);
+
+        var root = parent;
+
+        for (var i = 2; i < arguments.length; ++i) {
+            var index = arguments[i];
+
+            if (i == 3) index += offset;
+
+            if (index == -1) {
+                parent = parent.parentNode;
+            } else {
+                // NOTE: If `DIV(IF(...), FOR(...))` then `parent` is null because of an offset issue with IF(). Cannot figure it out.
+                // WORKAROUND: `DIV(DIV(IF(...)), FOR(...))`
+                parent = parent.childNodes[index];
+            }
+        }
+
+        DomplateDebug.endGroup();
+
+        return parent;
+    };
+
+    return exports;
+};
+},{}],6:[function(require,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * [Free Public License 1.0.0](https://opensource.org/licenses/FPL-1.0.0)
@@ -2212,7 +2247,7 @@ exports.compileDOM = function (code, context) {
 			{}
 ));
 
-},{}]},{},[1])(1)
+},{}]},{},[2])(2)
 });
 var mainModule = window.mainModule;
 delete window.mainModule;
