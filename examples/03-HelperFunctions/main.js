@@ -29,7 +29,7 @@ describe("Suite", function() {
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate.js"></script>',
+                    '<script src="/reps/domplate-eval.js"></script>',
                 '</head>',
                 '<body><div></div></body>',
                 '<script>',

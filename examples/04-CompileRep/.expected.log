@@ -6,6 +6,7 @@ environments: default
   Suite
 [bash.origin.express] Adding route: /announcer1.rep.js
 [bash.origin.express] Adding route: /announcer2.rep.js
+[bash.origin.express] Adding route: /domplate-eval.js
 [bash.origin.express] Adding route: /domplate.js
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /

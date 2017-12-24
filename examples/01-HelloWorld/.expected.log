@@ -4,12 +4,12 @@ environments: default
 
 
   Suite
-[bash.origin.express] Adding route: /dist/domplate.js
+[bash.origin.express] Adding route: /dist/domplate-eval.js
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
 [READY]
 127.0.0.1 - "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36"
-127.0.0.1 - "GET /dist/domplate.js HTTP/1.1" 200 - "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36"
+127.0.0.1 - "GET /dist/domplate-eval.js HTTP/1.1" 200 - "http://localhost:8080/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36"
 
 
 

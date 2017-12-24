@@ -277,7 +277,10 @@ exports.forConfig = function (CONFIG) {
 
                 // TODO: Use standard route conventions for these.
                 if (req.method === "GET") {
-                    if (req.url === "/domplate.js") {
+                    if (
+                        req.url === "/domplate.js" ||
+                        req.url === "/domplate-eval.js"
+                    ) {
                         repsApp(req, res, next);
                         return;
                     } else
