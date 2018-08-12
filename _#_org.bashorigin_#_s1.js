@@ -123,6 +123,9 @@ exports.forConfig = function (CONFIG) {
                     repCode = repCode.rep;
                 }
 
+                var cssCode = null;
+                var repBuildId = null;
+
                 var repCodeSrcPath = false;
                 if (/^\//.test(repCode)) {
                     repCodeSrcPath = repCode;
@@ -133,15 +136,47 @@ exports.forConfig = function (CONFIG) {
                         return callback(null, repCode);
                     }
 
+                    repCode = repCode.replace(/^module.exports = \{/, "{");
+                    
+                    var repBuildId = LIB.CRYPTO.createHash('sha1').update(repCode).digest('hex');
+                    
                     repCode = CODEBLOCK.purifyCode(repCode, {
                         freezeToJavaScript: true,
                         on: {
                             codeblock: function (codeblock) {
-                                throw new Error("Codeblock format '" + codeblock.getFormat() + "' not yet supported!");
+
+                                if (codeblock.getFormat() === "css") {
+
+                                    var css = codeblock.getCode();
+
+                                    css = css.replace(/:scope/g, '[_dbid="' + repBuildId + '"]');
+
+                                    codeblock._format = "javascript";
+                                    codeblock.setCode([
+                                        'function () {',
+                                            'return atob("' + (new Buffer(css).toString('base64')) + '")',
+                                        '}'
+                                    ].join("\n"));
+                                }
+
+                                return codeblock;
                             }
                         }
                     });
+                    
+                    eval('repCode = ' + repCode.toString());
 
+                    struct = repCode.struct || null;
+                    if (struct && repCode.rep) {
+                        cssCode = repCode.css || null;
+                        repCode = repCode.rep;
+                    }
+
+                    if (cssCode) {
+                        cssCode = cssCode.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
+                    }
+                    repCode = repCode.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
+                    
                 } else
                 if (repCode[".@"] === "github.com~0ink~codeblock/codeblock:Codeblock") {
                     repCode = CODEBLOCK.thawFromJSON(repCode).getCode();
@@ -152,17 +187,36 @@ exports.forConfig = function (CONFIG) {
                     throw new Error("Unknown code format!");
                 }
 
+                repBuildId = repBuildId || LIB.CRYPTO.createHash('sha1').update(repCode).digest('hex');
+
                 // Wrap rep
                 repCode = [
                     'function impl (domplate) {',
                     repCode,
+                    '}',
+                    'function css () {',
+                    cssCode,
                     '}',
                     'exports.main = function () {',
                         'var domplate = window.domplate;',
                         'var rep = impl(domplate);',
                         'rep.tag__dom = "%%DOM%%";',
                         'rep.tag__markup = "%%MARKUP%%";',
-                        'return domplate.domplate(rep);',
+                        'var res = domplate.domplate(rep);',
+                        // TODO: Do this in a better way.
+                        'var replace_orig = res.tag.replace;',
+                        'res.tag.replace = function () {',
+                            'var res = replace_orig.apply(this, arguments);',
+                            // '_dbid' - Domplate Build ID
+                            'res.parentNode.setAttribute("_dbid", "' + repBuildId + '");',
+                            // TODO: Buffer all CSS into the same stylesheet
+                            //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
+                            'var node = document.createElement("style");',
+                            'node.innerHTML = css();',
+                            'document.body.appendChild(node);',
+                            'return res;',
+                        '}',
+                        'return res;',
                     '}'
                 ].join("\n");
 
@@ -185,7 +239,7 @@ exports.forConfig = function (CONFIG) {
                     if (err) return callback(err);
 
                     var repSource = repCode;
-                    repSource = repSource.replace(/"use strict";/g, "");
+                    repSource = repSource.replace(/["']use strict['"];/g, "");
                     repSource = repSource.replace(/"%%DOM%%"/, "null");
                     repSource = repSource.replace(/"%%MARKUP%%"/, "null");     
 
@@ -194,7 +248,7 @@ exports.forConfig = function (CONFIG) {
 
                         var repBuild = repCode;
                         if (result) {
-                            repBuild = repBuild.replace(/"use strict";/g, "");
+                            repBuild = repBuild.replace(/["']use strict['"];/g, "");
                             repBuild = repBuild.replace(/"%%DOM%%"/, [
                                 'function (context) {',
                                     'var DomplateDebug = context.DomplateDebug;',

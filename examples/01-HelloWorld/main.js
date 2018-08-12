@@ -10,6 +10,8 @@ module.config = {
 
 //console.log(">>>TEST_IGNORE_LINE:GET /dist/resources/insight.renderers.default/images/<<<");
 
+console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
+
 describe("Suite", function() {
 
     require('bash.origin.workspace').LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
@@ -43,9 +45,8 @@ describe("Suite", function() {
     it('Test', function (client) {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
-        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
         
-        var selector = 'BODY DIV';
+        var selector = 'BODY DIV DIV';
 
         client.waitForElementPresent(selector, 3000);
 

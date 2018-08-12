@@ -18,30 +18,8 @@ describe("Suite", function() {
                 "@github.com~cadorn~domplate#s1": {
                     "compile": true,
                     "reps": {
-                        "announcer1": {
-                            struct: {
-                                message: "Hello World"
-                            },
-                            rep: function /*CodeBlock */ () {
-
-                                return {
-                                    tag: domplate.tags.DIV("$message")
-                                };
-                            }
-                        },
-                        "announcer2": {
-                            struct: {
-                                message: "Hello World"
-                            },
-                            rep: function /*CodeBlock */ () {
-
-                                return {
-                                    tag: domplate.tags.DIV({
-                                        style: "border: 1px solid black; padding: 5px"
-                                    }, domplate.tags.DIV("$message"))
-                                };
-                            }
-                        }
+                        "announcer1": __dirname + "/announcer1.rep.js",
+                        "announcer2": __dirname + "/announcer2.rep.js"
                     }
                 }
             },
@@ -69,16 +47,21 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
         
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer1', 3000);
+        client.waitForElementPresent('BODY DIV[_dbid]#announcer1', 5000);
         client.expect.element('BODY DIV#announcer1').text.to.contain([
             'Hello World!'
         ].join(""));
-
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer2', 3000);
+        client.expect.element('BODY DIV#announcer1').to.have.attribute('_dbid');
+        client.expect.element('BODY DIV#announcer1 > DIV').to.have.attribute('class').equals('announcer ');        
+        
+        client.waitForElementPresent('BODY DIV[_dbid]#announcer2', 5000);
         client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World!'
         ].join(""));
-
+        client.expect.element('BODY DIV#announcer2').to.have.attribute('_dbid');
+        client.expect.element('BODY DIV#announcer2 > DIV').to.have.attribute('class').equals('announcer ');
+        client.expect.element('BODY DIV#announcer2 > DIV').to.have.attribute('style').equals("border: 1px solid black; padding: 5px;");
+        
         if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
     });
 });

@@ -1,46 +1,48 @@
 {
-    "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
-    "name": "domplate",
-    "version": "0.2.3",
-    "pm": {
-        "publish": "npm"
-    },
-    "description": "JavaScript Template Library",
-    "keywords": [
-        "js",
-        "template",
-        "library",
-        "domplate",
-        "rep",
-        "reps"
-    ],
-    "author": "Joe Hewitt (http://joehewitt.com/)",
-    "contributors": [
-        "Christoph Dorn (http://www.christophdorn.com/)"
-    ],
-    "directories": {
-        "lib": "./lib"
-    },
-    "license": [
-        "BSD"
-    ],
-    "repositories": [
-        {
-            "type": "git",
-            "url": "git://github.com/cadorn/domplate.git"
-        }
-    ],
-    "config": {
-        "pio.deploy.converter": {
-            "name": "nodejs-lib"
-        }
-    },
-    "devDependencies": {
-        "bash.origin.workspace": "^0.3.1",
-        "jsdom": "^11.5.1",
-        "pinf-loader-js": "^0.4.22"
-    },
-    "scripts": {
-        "test": "bash.origin.test examples"
+  "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
+  "name": "domplate",
+  "version": "0.2.3",
+  "pm": {
+    "publish": "npm"
+  },
+  "description": "JavaScript Template Library",
+  "keywords": [
+    "js",
+    "template",
+    "library",
+    "domplate",
+    "rep",
+    "reps"
+  ],
+  "author": "Joe Hewitt (http://joehewitt.com/)",
+  "contributors": [
+    "Christoph Dorn (http://www.christophdorn.com/)"
+  ],
+  "main": "./_#_org.nodejs_#_rep.workspace.js",
+  "directories": {
+    "lib": "./lib"
+  },
+  "license": [
+    "BSD"
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git://github.com/cadorn/domplate.git"
     }
+  ],
+  "config": {
+    "pio.deploy.converter": {
+      "name": "nodejs-lib"
+    }
+  },
+  "devDependencies": {
+    "bash.origin.workspace": "^0.3.1",
+    "jsdom": "^11.5.1",
+    "pinf-loader-js": "^0.4.22",
+    "fs-extra": "^5.0.0"    
+  },
+  "scripts": {
+    "test": "bash.origin.test examples"
+  }
 }

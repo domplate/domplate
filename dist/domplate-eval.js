@@ -998,21 +998,6 @@ function Domplate(exports) {
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-    function ArrayIterator(array) {
-        var index = -1;
-
-        this.next = function () {
-            if (++index >= array.length) throw StopIteration;
-
-            return array[index];
-        };
-    }
-
-    function StopIteration() {}
-
-    domplate.$break = function () {
-        throw StopIteration;
-    };
 
     // ************************************************************************************************
 
@@ -1272,6 +1257,25 @@ var Renderer = exports.Renderer = {
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+function ArrayIterator(array) {
+    var index = -1;
+
+    this.next = function () {
+        if (++index >= array.length) throw StopIteration;
+
+        return array[index];
+    };
+}
+
+function StopIteration() {}
+
+/*
+domplate.$break = function()
+{
+    throw StopIteration;
+};
+*/
+
 exports.makeMarkupRuntime = function (context) {
 
     var self = context.self;
@@ -1280,7 +1284,7 @@ exports.makeMarkupRuntime = function (context) {
 
     exports.compiled = context.compiled || null;
 
-    exports.DomplateDebug = context.DomplateDebug;
+    var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
     exports.__link__ = function (tag, code, outputs, args) {
         if (!tag) {
@@ -1385,7 +1389,7 @@ exports.makeDOMRuntime = function (context) {
 
     exports.compiled = context.compiled || null;
 
-    exports.DomplateDebug = context.DomplateDebug;
+    var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
     exports.__bind__ = function (object, fn) {
         return function (event) {

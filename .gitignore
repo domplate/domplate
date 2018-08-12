@@ -10,3 +10,4 @@
 .rt/
 /examples/*/.actual.*
 *~.compiled.*
+~.rt_*

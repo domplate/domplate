@@ -20,9 +20,15 @@ describe("Suite", function() {
                         "announcer": function /*CodeBlock */ () {
 
                             return {
-                                tag: domplate.tags.DIV("$message|capitalize"),
-                                capitalize: function (str) {
-                                    return str.toUpperCase();
+                                tag: domplate.tags.UL(
+                                    domplate.tags.FOR("item", "$list|listIterator", domplate.tags.LI("$item.value"))
+                                ),
+                                listIterator: function (items) {
+                                    return items.map(function (value) {
+                                        return {
+                                            value: value
+                                        };
+                                    });
                                 }
                             };
                         }
@@ -36,7 +42,7 @@ describe("Suite", function() {
                 '<body><div></div></body>',
                 '<script>',
                 'window.domplate.loadRep("/reps/announcer", function (rep) {',
-                    'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV"));',
+                    'rep.tag.replace({ list: [ "Item 1", "Item 2" ] }, document.querySelector("DIV"));',
                 '}, console.error);',
                 '</script>'
             ].join("\n")
@@ -47,10 +53,11 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
 
-        client.waitForElementPresent('BODY DIV[_dbid]', 3000);
+        client.waitForElementPresent('BODY DIV[_dbid] UL', 5000);
         client.expect.element('BODY DIV').text.to.contain([
-            'HELLO WORLD!'
-        ].join(""));
+            'Item 1',
+            'Item 2'
+        ].join("\n"));
 
         if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
     });
