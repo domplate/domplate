@@ -16,9 +16,11 @@ describe("Suite", function() {
         "routes": {
             "^/reps/": {
                 "@github.com~cadorn~domplate#s1": {
+                    "dist": __dirname + "/../../dist",
                     "compile": true,
                     "reps": {
                         "announcer1": {
+                            dist: false,
                             struct: {
                                 message: "Hello World"
                             },
@@ -30,6 +32,7 @@ describe("Suite", function() {
                             }
                         },
                         "announcer2": {
+                            dist: false,
                             struct: {
                                 message: "Hello World"
                             },

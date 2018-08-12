@@ -10,13 +10,14 @@ const BO = LIB.BASH_ORIGIN;
 exports.forConfig = function (CONFIG) {
 
     // TODO: Better contextualized default '.rt' path.
-    const baseDistPath = CONFIG.dist ? CONFIG.dist.replace(/\.([^\.]+)$/, "") : PATH.join(process.cwd(), ".rt/domplate");
+    const baseDistPath = CONFIG.dist ? CONFIG.dist : PATH.join(process.cwd(), ".rt/domplate");
     // TODO: Make this 'selfSubpath' configurable based on the approach
     //       we are taking to inline dependencies into file structure.
     const selfSubpath = "";
 
-    function augmentConfig (config, targetSubpath) {
-        if (baseDistPath) {
+    function augmentConfig (config, targetSubpath, opts) {
+        opts = opts || {};
+        if (baseDistPath && opts.dist !== false) {
             config.dist = PATH.join(baseDistPath, selfSubpath, targetSubpath);
         }
         if (CONFIG.compile === true) {
@@ -232,7 +233,11 @@ exports.forConfig = function (CONFIG) {
                     implConfig.code = repCode;
                 }
 
-                implConfig = augmentConfig(implConfig, uri + ".rep.js")
+                var opts = {};
+                if (CONFIG.reps[uri].dist === false) {
+                    opts.dist = false;
+                }
+                implConfig = augmentConfig(implConfig, uri + ".rep.js", opts);
 
                 var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
                 implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
@@ -271,16 +276,19 @@ exports.forConfig = function (CONFIG) {
                                 '}'
                             ].join("\n"));
 
-                            FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), repBuild, "utf8");
-                            FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".preview.htm"), [
-                                '<html>',
-                                '<body>',
-                                '',
-                                result.preview,
-                                '',
-                                '</body>',
-                                '</html>'
-                            ].join("\n"), "utf8");
+                            if (CONFIG.reps[uri].dist !== false) {
+
+                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), repBuild, "utf8");
+                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".preview.htm"), [
+                                    '<html>',
+                                    '<body>',
+                                    '',
+                                    result.preview,
+                                    '',
+                                    '</body>',
+                                    '</html>'
+                                ].join("\n"), "utf8");
+                            }
                         }
 
                         return callback(null, repBuild);
