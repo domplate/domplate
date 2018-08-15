@@ -1,4 +1,4 @@
-Domplate
+domplate
 ========
 
 JavaScript Template Library originally used in Mozilla Firebug.
