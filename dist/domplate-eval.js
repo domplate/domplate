@@ -94,9 +94,9 @@ var DomplateDebug = exports.DomplateDebug = require("./debug").DomplateDebug;
 var Renderer = exports.Renderer = require("./renderer").Renderer;
 Renderer.DomplateDebug = DomplateDebug;
 
-exports.util = require("./util");
-
 function Domplate(exports) {
+
+    exports.util = require("./util");
 
     exports.EVAL = {
         compileMarkup: function compileMarkup(code, context) {
@@ -1037,7 +1037,7 @@ exports.domplate.loadRep = function (url, successCallback, errorCallback) {
         successCallback(rep);
     }, errorCallback);
 };
-},{"./debug":1,"./renderer":5,"./rt":6,"./util":7,"pinf-loader-js":8}],4:[function(require,module,exports){
+},{"./debug":1,"./renderer":5,"./rt":6,"./util":7,"pinf-loader-js":9}],4:[function(require,module,exports){
 
 exports.compileMarkup = function (code, context) {
 
@@ -1506,6 +1506,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  */
 
 var FBTrace = {};
+
+exports.merge = require("deepmerge");
 
 // ************************************************************************************************
 // String
@@ -1989,7 +1991,106 @@ exports.isArguments = function (object) {
     }
     return true;
 };
-},{}],8:[function(require,module,exports){
+},{"deepmerge":8}],8:[function(require,module,exports){
+(function (global, factory) {
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+	typeof define === 'function' && define.amd ? define(factory) :
+	(global.deepmerge = factory());
+}(this, (function () { 'use strict';
+
+var isMergeableObject = function isMergeableObject(value) {
+	return isNonNullObject(value)
+		&& !isSpecial(value)
+};
+
+function isNonNullObject(value) {
+	return !!value && typeof value === 'object'
+}
+
+function isSpecial(value) {
+	var stringValue = Object.prototype.toString.call(value);
+
+	return stringValue === '[object RegExp]'
+		|| stringValue === '[object Date]'
+		|| isReactElement(value)
+}
+
+// see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
+var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
+
+function isReactElement(value) {
+	return value.$$typeof === REACT_ELEMENT_TYPE
+}
+
+function emptyTarget(val) {
+	return Array.isArray(val) ? [] : {}
+}
+
+function cloneUnlessOtherwiseSpecified(value, options) {
+	return (options.clone !== false && options.isMergeableObject(value))
+		? deepmerge(emptyTarget(value), value, options)
+		: value
+}
+
+function defaultArrayMerge(target, source, options) {
+	return target.concat(source).map(function(element) {
+		return cloneUnlessOtherwiseSpecified(element, options)
+	})
+}
+
+function mergeObject(target, source, options) {
+	var destination = {};
+	if (options.isMergeableObject(target)) {
+		Object.keys(target).forEach(function(key) {
+			destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+		});
+	}
+	Object.keys(source).forEach(function(key) {
+		if (!options.isMergeableObject(source[key]) || !target[key]) {
+			destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
+		} else {
+			destination[key] = deepmerge(target[key], source[key], options);
+		}
+	});
+	return destination
+}
+
+function deepmerge(target, source, options) {
+	options = options || {};
+	options.arrayMerge = options.arrayMerge || defaultArrayMerge;
+	options.isMergeableObject = options.isMergeableObject || isMergeableObject;
+
+	var sourceIsArray = Array.isArray(source);
+	var targetIsArray = Array.isArray(target);
+	var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
+
+	if (!sourceAndTargetTypesMatch) {
+		return cloneUnlessOtherwiseSpecified(source, options)
+	} else if (sourceIsArray) {
+		return options.arrayMerge(target, source, options)
+	} else {
+		return mergeObject(target, source, options)
+	}
+}
+
+deepmerge.all = function deepmergeAll(array, options) {
+	if (!Array.isArray(array)) {
+		throw new Error('first argument should be an array')
+	}
+
+	return array.reduce(function(prev, next) {
+		return deepmerge(prev, next, options)
+	}, {})
+};
+
+var deepmerge_1 = deepmerge;
+
+return deepmerge_1;
+
+})));
+
+},{}],9:[function(require,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * [Free Public License 1.0.0](https://opensource.org/licenses/FPL-1.0.0)
