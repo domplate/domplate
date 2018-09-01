@@ -13,6 +13,16 @@ environments: default
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
 [READY]
+DEPRECATED: 'format = "standalone"' should no longer be used. Use 'expose.window' or 'expose.exports' instead.
+DEPRECATED: 'format = "standalone"' should no longer be used. Use 'expose.window' or 'expose.exports' instead.
+[bash.origin.express] Routing request / with method GET due to route /
+[bash.origin.express] Routing request /domplate.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /domplate.js
+DEPRECATED: 'format = "standalone"' should no longer be used. Use 'expose.window' or 'expose.exports' instead.
+[bash.origin.express] Routing request /announcer1.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /announcer1.rep.js
+[bash.origin.express] Routing request /announcer2.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /announcer2.rep.js
 
 
 
