@@ -4,8 +4,8 @@ var exports = undefined;
 var module = undefined;
 var define = function (deps, init) {
 var exports = init();
-["domplate"].forEach(function (name) {
-window[name] = exports[name];
+[["domplate","domplate"]].forEach(function (expose) {
+window[expose[0]] = exports[expose[1]];
 });
 }; define.amd = true;
 

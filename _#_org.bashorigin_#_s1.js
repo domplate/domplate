@@ -18,7 +18,7 @@ exports.forConfig = function (CONFIG) {
     function augmentConfig (config, targetSubpath, opts) {
         opts = opts || {};
         if (baseDistPath && opts.dist !== false) {
-            config.dist = PATH.join(baseDistPath, selfSubpath, targetSubpath);
+            config.dist = PATH.join(baseDistPath, selfSubpath, (typeof opts.dist === 'boolean' || !opts.dist) ? '' : opts.dist, targetSubpath);
         }
         if (CONFIG.compile === true) {
             config.prime = true;
@@ -97,7 +97,7 @@ exports.forConfig = function (CONFIG) {
         "/domplate.js": {
             "@it.pinf.org.browserify#s1": augmentConfig({
                 "src": PATH.join(__dirname, "lib/domplate.js"),
-                "format": "standalone",
+                "format": "browser",
                 "expose": {
                     "window": "domplate"
                 }
@@ -106,7 +106,7 @@ exports.forConfig = function (CONFIG) {
         "/domplate-eval.js": {
             "@it.pinf.org.browserify#s1": augmentConfig({
                 "src": PATH.join(__dirname, "lib/domplate-eval.js"),
-                "format": "standalone",
+                "format": "browser",
                 "expose": {
                     "window": "domplate"
                 }
@@ -234,8 +234,8 @@ exports.forConfig = function (CONFIG) {
                 }
 
                 var opts = {};
-                if (CONFIG.reps[uri].dist === false) {
-                    opts.dist = false;
+                if (typeof CONFIG.reps[uri].dist !== "undefined") {
+                    opts.dist = CONFIG.reps[uri].dist;
                 }
                 implConfig = augmentConfig(implConfig, uri + ".rep.js", opts);
 
@@ -278,8 +278,10 @@ exports.forConfig = function (CONFIG) {
 
                             if (CONFIG.reps[uri].dist !== false) {
 
-                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), repBuild, "utf8");
-                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".preview.htm"), [
+                                var distSub = (typeof CONFIG.reps[uri].dist === "boolean" || !CONFIG.reps[uri].dist) ? '' : CONFIG.reps[uri].dist;
+
+                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".rep.js"), repBuild, "utf8");
+                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".preview.htm"), [
                                     '<html>',
                                     '<body>',
                                     '',
