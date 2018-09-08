@@ -16,9 +16,16 @@ exports.forConfig = function (CONFIG) {
     const selfSubpath = "";
 
     function augmentConfig (config, targetSubpath, opts) {
-        opts = opts || {};
-        if (baseDistPath && opts.dist !== false) {
-            config.dist = PATH.join(baseDistPath, selfSubpath, (typeof opts.dist === 'boolean' || !opts.dist) ? '' : opts.dist, targetSubpath);
+        if (baseDistPath) {
+            if (opts) {
+                if (opts.dist === false) {
+                    config.dist = false;
+                } else {
+                    config.dist = PATH.join(baseDistPath, selfSubpath, (typeof opts.dist === 'boolean' || !opts.dist) ? '' : opts.dist, targetSubpath);
+                }
+            } else {
+                config.dist = PATH.join(baseDistPath, selfSubpath, targetSubpath);
+            }
         }
         if (CONFIG.compile === true) {
             config.prime = true;
@@ -119,12 +126,15 @@ exports.forConfig = function (CONFIG) {
             try {
                 var repCode = CONFIG.reps[uri];
 
+                var dist = repCode.dist || false;
+
                 var struct = repCode.struct || null;
                 if (struct && repCode.rep) {
                     repCode = repCode.rep;
                 }
 
                 var cssCode = null;
+                var rawCssCode = null;
                 var repBuildId = null;
 
                 var repCodeSrcPath = false;
@@ -152,6 +162,8 @@ exports.forConfig = function (CONFIG) {
 
                                     css = css.replace(/:scope/g, '[_dbid="' + repBuildId + '"]');
 
+                                    rawCssCode = css;
+
                                     codeblock._format = "javascript";
                                     codeblock.setCode([
                                         'function () {',
@@ -167,6 +179,7 @@ exports.forConfig = function (CONFIG) {
                     
                     eval('repCode = ' + repCode.toString());
 
+                    dist = repCode.dist || null;
                     struct = repCode.struct || null;
                     if (struct && repCode.rep) {
                         cssCode = repCode.css || null;
@@ -198,7 +211,8 @@ exports.forConfig = function (CONFIG) {
                     'function css () {',
                     cssCode,
                     '}',
-                    'exports.main = function () {',
+                    'exports.main = function (options) {',
+                        'options = options || {};',
                         'var domplate = window.domplate;',
                         'var rep = impl(domplate);',
                         'rep.tag__dom = "%%DOM%%";',
@@ -213,7 +227,11 @@ exports.forConfig = function (CONFIG) {
                             // TODO: Buffer all CSS into the same stylesheet
                             //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
                             'var node = document.createElement("style");',
-                            'node.innerHTML = css();',
+                            'var cssCode = css();',
+                            'if (options.cssBaseUrl) {',
+                                'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
+                            '}',
+                            'node.innerHTML = cssCode;',
                             'document.body.appendChild(node);',
                             'return res;',
                         '}',
@@ -234,9 +252,7 @@ exports.forConfig = function (CONFIG) {
                 }
 
                 var opts = {};
-                if (typeof CONFIG.reps[uri].dist !== "undefined") {
-                    opts.dist = CONFIG.reps[uri].dist;
-                }
+                opts.dist = dist;
                 implConfig = augmentConfig(implConfig, uri + ".rep.js", opts);
 
                 var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
@@ -276,11 +292,13 @@ exports.forConfig = function (CONFIG) {
                                 '}'
                             ].join("\n"));
 
-                            if (CONFIG.reps[uri].dist !== false) {
+                            if (dist !== false) {
 
-                                var distSub = (typeof CONFIG.reps[uri].dist === "boolean" || !CONFIG.reps[uri].dist) ? '' : CONFIG.reps[uri].dist;
+                                var distSub = (typeof dist === "boolean" || !dist) ? '' : dist;
 
-                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".rep.js"), repBuild, "utf8");
+                                // Should already be written by 'BO.depend("it.pinf.org.browserify#s1", implConfig);'
+                                //FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".rep.js"), repBuild, "utf8");
+
                                 FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".preview.htm"), [
                                     '<html>',
                                     '<body>',
@@ -290,6 +308,22 @@ exports.forConfig = function (CONFIG) {
                                     '</body>',
                                     '</html>'
                                 ].join("\n"), "utf8");
+
+                                // Scan for URLs in css and copy relevant files
+                                // TODO: Use PostCSS for this
+                                var filepaths = [];
+                                var re = /url\s*\(([^\)]+)\);/g;
+                                var match = null;
+                                while ( match = re.exec(rawCssCode) ) {
+                                    filepaths.push(match[1]);
+                                }
+                                filepaths.forEach(function (filepath) {
+                                    var sourcePath = PATH.join(implConfig.basedir, filepath);
+                                    if (!FS.existsSync(sourcePath)) {
+                                        throw new Error("File '" + sourcePath + "' referenced in CSS not found at '" + sourcePath + "'!");
+                                    }
+                                    FS.copySync(sourcePath, PATH.join(baseDistPath, selfSubpath, distSub, uri, '..', filepath));
+                                });
                             }
                         }
 
@@ -330,6 +364,11 @@ exports.forConfig = function (CONFIG) {
         };
     });
 
+    if (!LIB.FS.existsSync(baseDistPath)) {
+        LIB.FS.mkdirSync(baseDistPath);
+    }
+    repRoutes["^\\/"] = baseDistPath;
+
     const repsApp = LIB.BASH_ORIGIN_EXPRESS.hookRoutes(repRoutes);
 
     return {
@@ -355,9 +394,12 @@ exports.forConfig = function (CONFIG) {
                         } else {
                             return next(new Error("Rep with name '" + m[1] + "' not declared!"));
                         }
+                    } else {
+                        repsApp(req, res, next);
+                        return;
                     }
                 }
-                return next();
+//                return next();
             };
         }
     }

@@ -31,20 +31,7 @@ describe("Suite", function() {
                                 };
                             }
                         },
-                        "announcer2": {
-                            dist: 'subdir',
-                            struct: {
-                                message: "Hello World"
-                            },
-                            rep: function /*CodeBlock */ () {
-
-                                return {
-                                    tag: domplate.tags.DIV({
-                                        style: "border: 1px solid black; padding: 5px"
-                                    }, domplate.tags.DIV("$message"))
-                                };
-                            }
-                        }
+                        "announcer2": __dirname + "/reps/announcer2.rep.js"
                     }
                 }
             },
@@ -60,7 +47,7 @@ describe("Suite", function() {
                     'window.domplate.loadRep("/reps/announcer1", function (rep) {',
                         'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer1"));',
                     '}, console.error);',
-                    'window.domplate.loadRep("/reps/announcer2", function (rep) {',
+                    'window.domplate.loadRep("/reps/announcer2", { cssBaseUrl: "/reps/subdir/" }, function (rep) {',
                         'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer2"));',
                     '}, console.error);',
                 '</script>'

@@ -8,6 +8,7 @@ environments: default
 [bash.origin.express] Adding route: /domplate-eval.js
 [bash.origin.express] Adding route: /announcer.rep.js
 [bash.origin.express] Adding route: /domplate.js
+[bash.origin.express] Adding route: /^\//
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/

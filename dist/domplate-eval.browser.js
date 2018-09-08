@@ -1040,10 +1040,15 @@ exports.domplate.ensureLoader = function () {
     return PINF;
 };
 
-exports.domplate.loadRep = function (url, successCallback, errorCallback) {
+exports.domplate.loadRep = function (url, options, successCallback, errorCallback) {
+    if (typeof options === "function") {
+        errorCallback = successCallback;
+        successCallback = options;
+        options = {};
+    }
     var PINF = exports.domplate.ensureLoader();
     return PINF.sandbox(url + ".rep", function (sandbox) {
-        var rep = sandbox.main();
+        var rep = sandbox.main(options);
         successCallback(rep);
     }, errorCallback);
 };
