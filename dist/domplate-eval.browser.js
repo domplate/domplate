@@ -194,9 +194,8 @@ function Domplate(exports) {
         domplate.topContext = lastContext;
     };
 
-    exports.tags.TAG = function ()
     //domplate.TAG = function()
-    {
+    exports.tags.TAG = function () {
         var embed = new DomplateEmbed();
         return embed.merge(arguments);
     };
@@ -332,12 +331,10 @@ function Domplate(exports) {
             // Inject the compiled JS so we can view it later in the console when the code runs     
             js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
 
-            //system.print(js,'JS');
-
-            this.renderMarkup = exports.EVAL.compileMarkup(js, RT.makeMarkupRuntime({
+            this.renderMarkup = exports.EVAL.compileMarkup(js, RT.makeMarkupRuntime(exports.EVAL, {
                 DomplateDebug: DomplateDebug,
                 self: self,
-                compiled: this.subject.tag__markup
+                compiled: this.subject.__markup
             }));
 
             DomplateDebug.endGroup();
@@ -491,9 +488,10 @@ function Domplate(exports) {
             // Inject the compiled JS so we can view it later in the console when the code runs     
             js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
 
-            this.renderDOM = exports.EVAL.compileDOM(js, RT.makeDOMRuntime({
+            this.renderDOM = exports.EVAL.compileDOM(js, RT.makeDOMRuntime(exports.EVAL, {
                 DomplateDebug: DomplateDebug,
-                compiled: this.subject.tag__dom
+                self: self,
+                compiled: this.subject.__dom
             }));
 
             DomplateDebug.endGroup();
@@ -1293,13 +1291,23 @@ domplate.$break = function()
 };
 */
 
-exports.makeMarkupRuntime = function (context) {
+exports.makeMarkupRuntime = function (EVAL, context) {
 
     var self = context.self;
 
+    var tagName = null;
+    Object.keys(self.subject).forEach(function (name) {
+        if (self.subject[name].tag === self) {
+            tagName = name;
+        }
+    });
+    if (!tagName) {
+        throw new Error("Unable to determine 'tagName'!");
+    }
+
     var exports = {};
 
-    exports.compiled = context.compiled || null;
+    exports.compiled = context.compiled && context.compiled[tagName] || null;
 
     var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
@@ -1311,6 +1319,10 @@ exports.makeMarkupRuntime = function (context) {
         if (!tag.tag) {
             DomplateDebug.logVar('tag', tag);
             DomplateDebug.logWarn('tag.tag not defined');
+            return;
+        }
+
+        if (!exports.compiled) {
             return;
         }
 
@@ -1400,11 +1412,23 @@ exports.makeMarkupRuntime = function (context) {
     return exports;
 };
 
-exports.makeDOMRuntime = function (context) {
+exports.makeDOMRuntime = function (EVAL, context) {
+
+    var self = context.self;
+
+    var tagName = null;
+    Object.keys(self.subject).forEach(function (name) {
+        if (self.subject[name].tag === self) {
+            tagName = name;
+        }
+    });
+    if (!tagName) {
+        throw new Error("Unable to determine 'tagName'!");
+    }
 
     var exports = {};
 
-    exports.compiled = context.compiled || null;
+    exports.compiled = context.compiled && context.compiled[tagName] || null;
 
     var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
@@ -1424,6 +1448,10 @@ exports.makeDOMRuntime = function (context) {
         if (!tag.tag) {
             DomplateDebug.logVar('tag', tag);
             DomplateDebug.logWarn('tag.tag not defined');
+            return;
+        }
+
+        if (!exports.compiled) {
             return;
         }
 

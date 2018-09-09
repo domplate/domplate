@@ -23,7 +23,8 @@ exports.forConfig = function (CONFIG) {
                 } else {
                     config.dist = PATH.join(baseDistPath, selfSubpath, (typeof opts.dist === 'boolean' || !opts.dist) ? '' : opts.dist, targetSubpath);
                 }
-            } else {
+            } else
+            if (CONFIG.distDomplate !== false) {
                 config.dist = PATH.join(baseDistPath, selfSubpath, targetSubpath);
             }
         }
@@ -36,7 +37,7 @@ exports.forConfig = function (CONFIG) {
         return config;
     }
 
-    function compileIfDesired (code, struct, callback) {
+    function compileIfDesired (code, structs, callback) {
         if (CONFIG.compile !== true) {
             return callback(null, null);
         }
@@ -73,25 +74,32 @@ exports.forConfig = function (CONFIG) {
 
                         var el = window.document.querySelector("DIV");
 
-                        var info = {
-                            markup: null,
-                            dom: null,
-                            preview: null
-                        }
+                        var tagInfo = {};
 
-                        window.domplate.EVAL.onMarkupCode = function (code) {
-                            info.markup = code;
-                        };
+                        Object.keys(structs).forEach(function (name) {
 
-                        window.domplate.EVAL.onDOMCode = function (code) {
-                            info.dom = code;
-                        };
-                            
-                        rep.tag.replace(struct, el);
+                            var info = {
+                                markup: null,
+                                dom: null,
+                                preview: null
+                            }
 
-                        info.preview = el.innerHTML;
+                            window.domplate.EVAL.onMarkupCode = function (code) {
+                                info.markup = code;
+                            };
 
-                        return callback(null, info);
+                            window.domplate.EVAL.onDOMCode = function (code) {
+                                info.dom = code;
+                            };
+
+                            rep[name].replace(structs[name], el);
+
+                            info.preview = el.innerHTML;
+
+                            tagInfo[name] = info;
+                        });
+
+                        return callback(null, tagInfo);
                     }                        
                 }
             });
@@ -126,10 +134,14 @@ exports.forConfig = function (CONFIG) {
             try {
                 var repCode = CONFIG.reps[uri];
 
-                var dist = repCode.dist || false;
+                var dist = null;
+                if (typeof repCode.dist !== "undefined") {
+                    dist = repCode.dist;
+                }
 
                 var struct = repCode.struct || null;
-                if (struct && repCode.rep) {
+                var structs = repCode.structs || null;
+                if ((struct || structs) && repCode.rep) {
                     repCode = repCode.rep;
                 }
 
@@ -179,9 +191,12 @@ exports.forConfig = function (CONFIG) {
                     
                     eval('repCode = ' + repCode.toString());
 
-                    dist = repCode.dist || null;
+                    if (typeof repCode.dist !== "undefined") {
+                        dist = repCode.dist || null;
+                    }
                     struct = repCode.struct || null;
-                    if (struct && repCode.rep) {
+                    structs = repCode.structs || null;
+                    if ((struct || structs) && repCode.rep) {
                         cssCode = repCode.css || null;
                         repCode = repCode.rep;
                     }
@@ -215,26 +230,28 @@ exports.forConfig = function (CONFIG) {
                         'options = options || {};',
                         'var domplate = window.domplate;',
                         'var rep = impl(domplate);',
-                        'rep.tag__dom = "%%DOM%%";',
-                        'rep.tag__markup = "%%MARKUP%%";',
+                        'rep.__dom = "%%DOM%%";',
+                        'rep.__markup = "%%MARKUP%%";',
                         'var res = domplate.domplate(rep);',
                         // TODO: Do this in a better way.
-                        'var replace_orig = res.tag.replace;',
-                        'res.tag.replace = function () {',
-                            'var res = replace_orig.apply(this, arguments);',
-                            // '_dbid' - Domplate Build ID
-                            'res.parentNode.setAttribute("_dbid", "' + repBuildId + '");',
-                            // TODO: Buffer all CSS into the same stylesheet
-                            //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
-                            'var node = document.createElement("style");',
-                            'var cssCode = css();',
-                            'if (options.cssBaseUrl) {',
-                                'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
+                        'Object.keys(rep.__dom).forEach(function (tagName) {',
+                            'var replace_orig = res[tagName].replace;',
+                            'res[tagName].replace = function () {',
+                                'var res = replace_orig.apply(this, arguments);',
+                                // '_dbid' - Domplate Build ID
+                                'res.parentNode.setAttribute("_dbid", "' + repBuildId + '");',
+                                // TODO: Buffer all CSS into the same stylesheet
+                                //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
+                                'var node = document.createElement("style");',
+                                'var cssCode = css();',
+                                'if (options.cssBaseUrl) {',
+                                    'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
+                                '}',
+                                'node.innerHTML = cssCode;',
+                                'document.body.appendChild(node);',
+                                'return res;',
                             '}',
-                            'node.innerHTML = cssCode;',
-                            'document.body.appendChild(node);',
-                            'return res;',
-                        '}',
+                        '});',
                         'return res;',
                     '}'
                 ].join("\n");
@@ -252,45 +269,76 @@ exports.forConfig = function (CONFIG) {
                 }
 
                 var opts = {};
-                opts.dist = dist;
+                if (dist !== null) {
+                    opts.dist = dist;
+                }
                 implConfig = augmentConfig(implConfig, uri + ".rep.js", opts);
 
                 var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
                 implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
                     if (err) return callback(err);
 
+                    if (!structs && struct) {
+                        structs = {
+                            tag: struct
+                        };
+                    }
+
+                    var domCode = {};
+                    var markupCode = {};
+                    if (structs) {
+                        Object.keys(structs).forEach(function (name) {
+                            domCode[name] = null;
+                            markupCode[name] = null;
+                        });
+                    }
+
                     var repSource = repCode;
                     repSource = repSource.replace(/["']use strict['"];/g, "");
-                    repSource = repSource.replace(/"%%DOM%%"/, "null");
-                    repSource = repSource.replace(/"%%MARKUP%%"/, "null");     
+                    repSource = repSource.replace(/"%%DOM%%"/, JSON.stringify(domCode));
+                    repSource = repSource.replace(/"%%MARKUP%%"/, JSON.stringify(markupCode));     
 
-                    compileIfDesired(repSource, struct, function (err, result) {
+                    compileIfDesired(repSource, structs, function (err, result) {
                         if (err) return callback(err);
 
                         var repBuild = repCode;
                         if (result) {
+
+                            var domCode = ['{'];
+                            var markupCode = ['{'];
+                            Object.keys(result).forEach(function (name, i) {
+                                if (i > 0) {
+                                    domCode.push(",");
+                                    markupCode.push(",");
+                                }
+                                domCode.push('"' + name + '":' + [
+                                    'function (context) {',
+                                        'var DomplateDebug = context.DomplateDebug;',
+                                        'var __path__ = context.__path__;',
+                                        'var __bind__ = context.__bind__;',
+                                        'var __if__ = context.__if__;',
+                                        'var __link__ = context.__link__;',
+                                        'var __loop__ = context.__loop__;',
+                                        'return ' + result[name].dom,
+                                    '}'
+                                ].join("\n"));
+                                markupCode.push('"' + name + '":' + [
+                                    'function (context) {',
+                                        'var DomplateDebug = context.DomplateDebug;',
+                                        'var __escape__ = context.__escape__;',
+                                        'var __if__ = context.__if__;',
+                                        'var __loop__ = context.__loop__;',
+                                        'var __link__ = context.__link__;',
+                                        'return ' + result[name].markup,
+                                    '}'
+                                ].join("\n"));
+                            });
+                            domCode.push('}');
+                            markupCode.push('}');
+
                             repBuild = repBuild.replace(/["']use strict['"];/g, "");
-                            repBuild = repBuild.replace(/"%%DOM%%"/, [
-                                'function (context) {',
-                                    'var DomplateDebug = context.DomplateDebug;',
-                                    'var __path__ = context.__path__;',
-                                    'var __bind__ = context.__bind__;',
-                                    'var __if__ = context.__if__;',
-                                    'var __link__ = context.__link__;',
-                                    'var __loop__ = context.__loop__;',
-                                    'return ' + result.dom,
-                                '}'
-                            ].join("\n"));
-                            repBuild = repBuild.replace(/"%%MARKUP%%"/, [
-                                'function (context) {',
-                                    'var DomplateDebug = context.DomplateDebug;',
-                                    'var __escape__ = context.__escape__;',
-                                    'var __if__ = context.__if__;',
-                                    'var __loop__ = context.__loop__;',
-                                    'var __link__ = context.__link__;',
-                                    'return ' + result.markup,
-                                '}'
-                            ].join("\n"));
+                            repBuild = repBuild.replace(/"%%DOM%%"/, domCode.join("\n"));
+                            repBuild = repBuild.replace(/"%%MARKUP%%"/, markupCode.join("\n"));
 
                             if (dist !== false) {
 
@@ -302,9 +350,13 @@ exports.forConfig = function (CONFIG) {
                                 FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".preview.htm"), [
                                     '<html>',
                                     '<body>',
-                                    '',
-                                    result.preview,
-                                    '',
+                                    Object.keys(result).map(function (name) {
+                                        return [
+                                            '',
+                                            result[name].preview,
+                                            ''
+                                        ].join("\n");
+                                    }),
                                     '</body>',
                                     '</html>'
                                 ].join("\n"), "utf8");
@@ -312,10 +364,12 @@ exports.forConfig = function (CONFIG) {
                                 // Scan for URLs in css and copy relevant files
                                 // TODO: Use PostCSS for this
                                 var filepaths = [];
-                                var re = /url\s*\(([^\)]+)\);/g;
-                                var match = null;
-                                while ( match = re.exec(rawCssCode) ) {
-                                    filepaths.push(match[1]);
+                                if (rawCssCode) {
+                                    var re = /url\s*\(([^\)]+)\);/g;
+                                    var match = null;
+                                    while ( match = re.exec(rawCssCode) ) {
+                                        filepaths.push(match[1]);
+                                    }
                                 }
                                 filepaths.forEach(function (filepath) {
                                     var sourcePath = PATH.join(implConfig.basedir, filepath);
@@ -325,6 +379,8 @@ exports.forConfig = function (CONFIG) {
                                     FS.copySync(sourcePath, PATH.join(baseDistPath, selfSubpath, distSub, uri, '..', filepath));
                                 });
                             }
+                        } else {
+                            repBuild = repSource;
                         }
 
                         return callback(null, repBuild);
@@ -364,9 +420,7 @@ exports.forConfig = function (CONFIG) {
         };
     });
 
-    if (!LIB.FS.existsSync(baseDistPath)) {
-        LIB.FS.mkdirSync(baseDistPath);
-    }
+    FS.ensureDirSync(baseDistPath);
     repRoutes["^\\/"] = baseDistPath;
 
     const repsApp = LIB.BASH_ORIGIN_EXPRESS.hookRoutes(repRoutes);

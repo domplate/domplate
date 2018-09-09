@@ -44,8 +44,8 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
 
-        client.waitForElementPresent('BODY DIV[_dbid]', 3000);
-        client.expect.element('BODY DIV').text.to.contain([
+        client.waitForElementPresent('BODY > DIV > DIV', 3000);
+        client.expect.element('BODY > DIV > DIV').text.to.contain([
             'Hello World!'
         ].join(""));
 
