@@ -75,8 +75,10 @@ exports.forConfig = function (CONFIG) {
                         var el = window.document.querySelector("DIV");
 
                         var tagInfo = {};
+                        
+                        Object.keys(rep).forEach(function (name) {
 
-                        Object.keys(structs).forEach(function (name) {
+                            if (!rep[name].tag) return;
 
                             var info = {
                                 markup: null,
@@ -92,7 +94,7 @@ exports.forConfig = function (CONFIG) {
                                 info.dom = code;
                             };
 
-                            rep[name].replace(LIB.LODASH.merge({}, structs[name], CONFIG.injectStruct || {}), el);
+                            rep[name].replace(LIB.LODASH.merge({}, structs[name] || structs["tag"] || {}, CONFIG.injectStruct || {}), el);
 
                             info.preview = el.innerHTML;
 
@@ -234,10 +236,15 @@ exports.forConfig = function (CONFIG) {
                         'rep.__markup = "%%MARKUP%%";',
                         'var res = domplate.domplate(rep);',
                         // TODO: Do this in a better way.
-                        'Object.keys(rep.__dom).forEach(function (tagName) {',
+                        'var renderedCss = false;',
+                        'Object.keys(rep).forEach(function (tagName) {',
+                            'if (!rep[tagName].tag) return;',
                             'var replace_orig = res[tagName].replace;',
                             'res[tagName].replace = function () {',
                                 'var res = replace_orig.apply(this, arguments);',
+                                'if (!res) return;',
+                                'if (renderedCss) return;',
+                                'renderedCss = true;',
                                 // '_dbid' - Domplate Build ID
                                 'res.parentNode.setAttribute("_dbid", "' + repBuildId + '");',
                                 // TODO: Buffer all CSS into the same stylesheet

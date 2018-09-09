@@ -1284,7 +1284,7 @@ exports.makeMarkupRuntime = function (EVAL, context) {
             return;
         }
 
-        if (!exports.compiled) {
+        if (!exports.compiled && EVAL.onMarkupCode) {
             return;
         }
 
@@ -1413,7 +1413,7 @@ exports.makeDOMRuntime = function (EVAL, context) {
             return;
         }
 
-        if (!exports.compiled) {
+        if (!exports.compiled && EVAL.onMarkupCode) {
             return;
         }
 
