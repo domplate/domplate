@@ -92,7 +92,7 @@ exports.forConfig = function (CONFIG) {
                                 info.dom = code;
                             };
 
-                            rep[name].replace(structs[name], el);
+                            rep[name].replace(LIB.LODASH.merge({}, structs[name], CONFIG.injectStruct || {}), el);
 
                             info.preview = el.innerHTML;
 
