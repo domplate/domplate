@@ -1405,16 +1405,16 @@ exports.makeDOMRuntime = function (EVAL, context) {
 
         if (!tag) {
             DomplateDebug.logWarn('tag not defined');
-            return;
+            return 0;
         }
         if (!tag.tag) {
             DomplateDebug.logVar('tag', tag);
             DomplateDebug.logWarn('tag.tag not defined');
-            return;
+            return 0;
         }
 
         if (!exports.compiled && EVAL.onMarkupCode) {
-            return;
+            return 0;
         }
 
         tag.tag.compile();

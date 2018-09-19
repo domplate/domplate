@@ -94,7 +94,42 @@ exports.forConfig = function (CONFIG) {
                                 info.dom = code;
                             };
 
-                            rep[name].replace(LIB.LODASH.merge({}, structs[name] || structs["tag"] || {}, CONFIG.injectStruct || {}), el);
+                            var injectStruct = CONFIG.injectStruct || {};
+                            if (typeof injectStruct === "function") {
+                                injectStruct = injectStruct(window);
+                            }
+
+                            try {
+                                rep[name].replace(LIB.LODASH.merge({}, structs[name] || structs["tag"] || {}, injectStruct), el);
+                            } catch (err) {
+
+                                if (err.stack) {
+                                    var stackFrame = err.stack.split("\n")[1];
+                                    if (/at Object\.eval \(/.test(stackFrame)) {
+
+                                        if (/exports\.compileMarkup/.test(stackFrame)) {
+
+                                            console.error("info.markup\n\n", info.markup, "\n");
+
+                                            console.error("DOMPLATE compileMarkup EVAL ERROR", err);
+
+                                        } else
+                                        if (/exports\.compileDOM/.test(stackFrame)) {
+
+                                            console.error("info.dom\n\n", info.dom, "\n");
+
+                                            console.error("DOMPLATE compileDOM EVAL ERROR", err);
+
+                                        } else {
+                                            throw err;
+                                        }
+                                    } else {
+                                        throw err;
+                                    }
+                                } else {
+                                    throw err;
+                                }
+                            }
 
                             info.preview = el.innerHTML;
 
@@ -360,10 +395,13 @@ exports.forConfig = function (CONFIG) {
                                     Object.keys(result).map(function (name) {
                                         return [
                                             '',
+                                            '<h2>' + name + '</h2>',
+                                            '',
                                             result[name].preview,
+                                            '',
                                             ''
                                         ].join("\n");
-                                    }),
+                                    }).join("<br/>\n"),
                                     '</body>',
                                     '</html>'
                                 ].join("\n"), "utf8");
