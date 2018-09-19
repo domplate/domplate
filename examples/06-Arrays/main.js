@@ -53,8 +53,8 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
 
-        client.waitForElementPresent('BODY DIV[_dbid] UL', 5000);
-        client.expect.element('BODY DIV').text.to.contain([
+        client.waitForElementPresent('BODY > DIV > UL', 3000);
+        client.expect.element('BODY > DIV > UL').text.to.contain([
             'Item 1',
             'Item 2'
         ].join("\n"));
