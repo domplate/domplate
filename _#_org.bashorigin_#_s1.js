@@ -176,9 +176,14 @@ exports.forConfig = function (CONFIG) {
                     dist = repCode.dist;
                 }
 
-                var struct = repCode.struct || null;
                 var structs = repCode.structs || null;
-                if ((struct || structs) && repCode.rep) {
+                if (!structs && repCode.struct) {
+                    structs = {
+                        tag: repCode.struct
+                    };
+                }
+
+                if (structs && repCode.rep) {
                     repCode = repCode.rep;
                 }
 
@@ -189,59 +194,91 @@ exports.forConfig = function (CONFIG) {
                 var repCodeSrcPath = false;
                 if (/^\//.test(repCode)) {
                     repCodeSrcPath = repCode;
-                    repCode = FS.readFileSync(repCodeSrcPath, "utf8");
 
-                    if (/(^|\n)PINF\.bundle\(/.test(repCode)) {
-                        // Already bundled
-                        return callback(null, repCode);
+                    function loadRepAtPath (repCodeSrcPath) {
+                        var repCode = FS.readFileSync(repCodeSrcPath, "utf8");
+
+                        if (/(^|\n)PINF\.bundle\(/.test(repCode)) {
+                            // Already bundled
+                            return callback(null, repCode);
+                        }
+
+                        repCode = repCode.replace(/^module.exports = \{/, "{");
+
+                        repBuildId = repBuildId || LIB.CRYPTO.createHash('sha1').update(repCode).digest('hex');
+
+                        repCode = CODEBLOCK.purifyCode(repCode, {
+                            freezeToJavaScript: true,
+                            on: {
+                                codeblock: function (codeblock) {
+    
+                                    if (codeblock.getFormat() === "css") {
+    
+                                        var css = codeblock.getCode();
+    
+                                        css = css.replace(/:scope/g, '[_dbid="' + repBuildId + '"]');
+    
+                                        rawCssCode = css;
+    
+                                        codeblock._format = "text";
+                                        codeblock.setCode(css);
+                                    }
+    
+                                    return codeblock;
+                                }
+                            }
+                        });
+                        
+                        eval('repCode = ' + repCode.toString());
+
+                        if (
+                            repCode.css &&
+                            repCode.css[".@"] === "github.com~0ink~codeblock/codeblock:Codeblock"
+                        ) {
+                            repCode.css = CODEBLOCK.thawFromJSON(repCode.css).getCode();
+                        }
+                        if (repCode.rep) {
+                            repCode.rep = repCode.rep.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
+                        }
+
+                        if (!repCode.structs && repCode.struct) {
+                            repCode.structs = {
+                                tag: repCode.struct
+                            };
+                            delete repCode.struct;
+                        }
+        
+                        // Check if the rep is inheriting from another rep.
+                        if (
+                            typeof repCode.rep === "string" &&
+                            /^\.\.?\//.test(repCode.rep)
+                        ) {
+                            var masterRepCode = loadRepAtPath(LIB.PATH.join(repCodeSrcPath, "..", repCode.rep.replace(/(\.js)?$/, ".js")));
+
+                            if (masterRepCode.structs) {
+                                repCode.structs = LIB.LODASH.merge(masterRepCode.structs, repCode.structs || {});
+                            }
+
+                            if (masterRepCode.css) {
+                                repCode.css = masterRepCode.css + "\n" + (repCode.css || "");
+                            }
+
+                            repCode.rep = masterRepCode.rep;
+                        }
+
+                        return repCode;
                     }
 
-                    repCode = repCode.replace(/^module.exports = \{/, "{");
-                    
-                    var repBuildId = LIB.CRYPTO.createHash('sha1').update(repCode).digest('hex');
-                    
-                    repCode = CODEBLOCK.purifyCode(repCode, {
-                        freezeToJavaScript: true,
-                        on: {
-                            codeblock: function (codeblock) {
-
-                                if (codeblock.getFormat() === "css") {
-
-                                    var css = codeblock.getCode();
-
-                                    css = css.replace(/:scope/g, '[_dbid="' + repBuildId + '"]');
-
-                                    rawCssCode = css;
-
-                                    codeblock._format = "javascript";
-                                    codeblock.setCode([
-                                        'function () {',
-                                            'return atob("' + (new Buffer(css).toString('base64')) + '")',
-                                        '}'
-                                    ].join("\n"));
-                                }
-
-                                return codeblock;
-                            }
-                        }
-                    });
-                    
-                    eval('repCode = ' + repCode.toString());
+                    repCode = loadRepAtPath(repCodeSrcPath);
 
                     if (typeof repCode.dist !== "undefined") {
                         dist = repCode.dist || null;
                     }
-                    struct = repCode.struct || null;
                     structs = repCode.structs || null;
-                    if ((struct || structs) && repCode.rep) {
+                    if (structs && repCode.rep) {
                         cssCode = repCode.css || null;
                         repCode = repCode.rep;
                     }
-
-                    if (cssCode) {
-                        cssCode = cssCode.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
-                    }
-                    repCode = repCode.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
                     
                 } else
                 if (repCode[".@"] === "github.com~0ink~codeblock/codeblock:Codeblock") {
@@ -261,7 +298,7 @@ exports.forConfig = function (CONFIG) {
                     repCode,
                     '}',
                     'function css () {',
-                    cssCode,
+                        'return atob("' + (new Buffer(cssCode || "").toString('base64')) + '")',
                     '}',
                     'exports.main = function (options) {',
                         'options = options || {};',
@@ -319,12 +356,6 @@ exports.forConfig = function (CONFIG) {
                 var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
                 implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
                     if (err) return callback(err);
-
-                    if (!structs && struct) {
-                        structs = {
-                            tag: struct
-                        };
-                    }
 
                     var domCode = {};
                     var markupCode = {};
