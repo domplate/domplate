@@ -14,7 +14,7 @@ console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
 
 describe("Suite", function() {
 
-    require('bash.origin.workspace').LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
+    require('bash.origin.lib').js.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "/dist/domplate-eval.browser.js": {
                 "@it.pinf.org.browserify#s1": {
@@ -24,7 +24,8 @@ describe("Suite", function() {
                     "expose": {
                         "window": "domplate"
                     },
-                    "prime": true
+                    "prime": true,
+                    "strictMode": false
                 }
             },
             "/eval": [
@@ -47,7 +48,8 @@ describe("Suite", function() {
                     "expose": {
                         "window": "domplate"
                     },
-                    "prime": true
+                    "prime": true,
+                    "strictMode": false
                 }
             },
             "^/reps/": {
@@ -58,7 +60,7 @@ describe("Suite", function() {
                             struct: {
                                 message: "Hello World"
                             },
-                            rep: function /*CodeBlock */ () {
+                            rep: function CodeBlock /*CodeBlock*/ () {
 
                                 return {
                                     tag: domplate.tags.DIV("$message")
@@ -95,7 +97,7 @@ describe("Suite", function() {
         client.url('http://localhost:' + process.env.PORT + '/no-eval').pause(500);
 
 if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
-        
+
         var selector = 'BODY DIV DIV';
 
         client.waitForElementPresent(selector, 3000);

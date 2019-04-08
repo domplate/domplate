@@ -1,3 +1,4 @@
+>>>TEST_IGNORE_LINE:assertions passed\.<<<
 >>>TEST_IGNORE_LINE:\d milliseconds.$<<<
 >>>TEST_IGNORE_LINE:\d+\spassing\s\([^\)]+\)<<<
 environments: default
@@ -13,6 +14,11 @@ environments: default
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
 [READY]
+[bash.origin.express] Routing request / with method GET due to route /
+[bash.origin.express] Routing request /domplate-eval.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /domplate-eval.js
+[bash.origin.express] Routing request /announcer.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /announcer.rep.js
 
 
 

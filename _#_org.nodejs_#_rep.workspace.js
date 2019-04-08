@@ -5,9 +5,10 @@
 
 if (require.main === module) {
 
-    const LIB = require("bash.origin.workspace").forPackage(__dirname).LIB;
+    const LIB = require("bash.origin.lib").forPackage(__dirname).js;
 
-    const PATH = require("path");
+    const PATH = LIB.path;
+/*
     const CP = require("child_process");
     if (!require("fs").existsSync(PATH.join(__dirname, "node_modules/bash.origin.workspace"))) {
         CP.execSync('npm install', {
@@ -15,7 +16,8 @@ if (require.main === module) {
             stdio: "inherit"
         });
     }
-    const FS = require("fs-extra");
+*/
+    const FS = LIB.FS_EXTRA;
 
 
     const args = require("minimist")(process.argv.slice(2));
@@ -47,7 +49,7 @@ if (require.main === module) {
             FS.copySync(PATH.join(__dirname, "lib/workspace/tests"), testsBasePath);
 
             var env = process.env;
-            env.DOMPLATE_REP_WORKSPACE__BASH_ORIGIN_WORKSPACE_PATH = require.resolve("bash.origin.workspace");
+            env.DOMPLATE_REP_WORKSPACE__BASH_ORIGIN_LIB_PATH = require.resolve("bash.origin.lib");
             env.DOMPLATE_REP_WORKSPACE__CODEBLOCK_PATH = LIB.resolve("codeblock");
             env.DOMPLATE_REP_WORKSPACE__REP_PATH = repPath;
             

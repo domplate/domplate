@@ -12,7 +12,7 @@ console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
 
 describe("Suite", function() {
 
-    require('bash.origin.workspace').LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
+    require('bash.origin.lib').js.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
                 "@github.com~cadorn~domplate#s1": {

@@ -36,8 +36,10 @@
             "name": "nodejs-lib"
         }
     },
+    "__devDependencies": {
+        "bash.origin.workspace": "^0.3.1"
+    },
     "devDependencies": {
-        "bash.origin.workspace": "^0.3.1",
         "jsdom": "^11.5.1",
         "pinf-loader-js": "^0.4.22",
         "fs-extra": "^5.0.0"

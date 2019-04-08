@@ -12,3 +12,4 @@
 *~.compiled.*
 ~.rt_*
 /.~*
+/package-lock.json

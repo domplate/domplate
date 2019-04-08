@@ -1,7 +1,7 @@
 
-const LIB = require("bash.origin.workspace").forPackage(__dirname).LIB;
+const LIB = require("bash.origin.lib").forPackage(__dirname).js;
 
-const PATH = LIB.PATH;
+const PATH = LIB.path;
 const FS = LIB.FS_EXTRA;
 const CODEBLOCK = LIB.CODEBLOCK;
 const BO = LIB.BASH_ORIGIN;
@@ -54,8 +54,7 @@ exports.forConfig = function (CONFIG) {
                         var PINF = {
                             bundle: function (id, modules) {
                                 window.PINF.sandbox(modules, function (sandbox) {
-                                    var rep = sandbox.main();                                    
-
+                                    var rep = sandbox.main();
                                     window.ready(rep);
                                 });
                             }
@@ -152,7 +151,8 @@ exports.forConfig = function (CONFIG) {
                 "format": "browser",
                 "expose": {
                     "window": "domplate"
-                }
+                },
+                "strictMode": false
             }, "domplate.js")
         },
         "/domplate-eval.js": {
@@ -161,7 +161,8 @@ exports.forConfig = function (CONFIG) {
                 "format": "browser",
                 "expose": {
                     "window": "domplate"
-                }
+                },
+                "strictMode": false
             }, "domplate-eval.js")
         }
     };
@@ -284,8 +285,8 @@ exports.forConfig = function (CONFIG) {
                 if (repCode[".@"] === "github.com~0ink~codeblock/codeblock:Codeblock") {
                     repCode = CODEBLOCK.thawFromJSON(repCode).getCode();
                 } else
-                if (typeof repCode === "function") {                    
-                    repCode = repCode.toString().replace(/^function \(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
+                if (typeof repCode === "function") {
+                    repCode = repCode.toString().replace(/^function[^\()]*\(\) \{\n([\s\S]+)\n\s*\}$/, "$1");
                 } else {
                     throw new Error("Unknown code format!");
                 }
@@ -298,7 +299,7 @@ exports.forConfig = function (CONFIG) {
                     repCode,
                     '}',
                     'function css () {',
-                        'return atob("' + (new Buffer(cssCode || "").toString('base64')) + '")',
+                        'return atob("' + (Buffer.from(cssCode || "").toString('base64')) + '")',
                     '}',
                     'exports.main = function (options) {',
                         'options = options || {};',
