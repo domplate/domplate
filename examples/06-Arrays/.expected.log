@@ -6,17 +6,17 @@ environments: default
 
 
   Suite
-[bash.origin.express] Adding route: /domplate-eval.js
+[bash.origin.express] Adding route: /domplate-eval.browser.js
+[bash.origin.express] Adding route: /domplate.browser.js
 [bash.origin.express] Adding route: /announcer.rep.js
-[bash.origin.express] Adding route: /domplate.js
 [bash.origin.express] Adding route: /^\//
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
 [READY]
 [bash.origin.express] Routing request / with method GET due to route /
-[bash.origin.express] Routing request /domplate-eval.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /domplate-eval.js
+[bash.origin.express] Routing request /domplate-eval.browser.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
+[bash.origin.express] Routing request / with method GET due to route /domplate-eval.browser.js
 [bash.origin.express] Routing request /announcer.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
 [bash.origin.express] Routing request / with method GET due to route /announcer.rep.js
 

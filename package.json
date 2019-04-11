@@ -45,7 +45,8 @@
         "fs-extra": "^5.0.0"
     },
     "scripts": {
-        "test": "bash.origin.test examples"
+        "test": "bash.origin.test examples",
+        "build": "pinf.it ./#_gi0.PINF.it_#.inf.json"
     },
     "dependencies": {
         "deepmerge": "^2.1.1"

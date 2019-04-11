@@ -44,7 +44,7 @@ exports.forConfig = function (CONFIG) {
         try {
             new LIB.JSDOM.JSDOM(`
                 <head>
-                    <script src="file://${baseDistPath}/domplate-eval.js"></script>
+                    <script src="file://${baseDistPath}/domplate-eval.browser.js"></script>
                 </head>
                 <body>
                 <div></div>
@@ -145,7 +145,7 @@ exports.forConfig = function (CONFIG) {
     }
 
     const repRoutes = {
-        "/domplate.js": {
+        "/domplate.browser.js": {
             "@it.pinf.org.browserify#s1": augmentConfig({
                 "src": PATH.join(__dirname, "lib/domplate.js"),
                 "format": "browser",
@@ -153,9 +153,9 @@ exports.forConfig = function (CONFIG) {
                     "window": "domplate"
                 },
                 "strictMode": false
-            }, "domplate.js")
+            }, "domplate.browser.js")
         },
-        "/domplate-eval.js": {
+        "/domplate-eval.browser.js": {
             "@it.pinf.org.browserify#s1": augmentConfig({
                 "src": PATH.join(__dirname, "lib/domplate-eval.js"),
                 "format": "browser",
@@ -163,7 +163,7 @@ exports.forConfig = function (CONFIG) {
                     "window": "domplate"
                 },
                 "strictMode": false
-            }, "domplate-eval.js")
+            }, "domplate-eval.browser.js")
         }
     };
     Object.keys(CONFIG.reps).forEach(function (uri) {
@@ -418,8 +418,9 @@ exports.forConfig = function (CONFIG) {
 
                                 var distSub = (typeof dist === "boolean" || !dist) ? '' : dist;
 
-                                // Should already be written by 'BO.depend("it.pinf.org.browserify#s1", implConfig);'
-                                //FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".rep.js"), repBuild, "utf8");
+                                // Already written by 'BO.depend("it.pinf.org.browserify#s1", implConfig);'
+                                // but we write again as we changed the code.
+                                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".rep.js"), repBuild, "utf8");
 
                                 FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, distSub, uri + ".preview.htm"), [
                                     '<html>',
@@ -512,8 +513,8 @@ exports.forConfig = function (CONFIG) {
                 // TODO: Use standard route conventions for these.
                 if (req.method === "GET") {
                     if (
-                        req.url === "/domplate.js" ||
-                        req.url === "/domplate-eval.js"
+                        req.url === "/domplate.browser.js" ||
+                        req.url === "/domplate-eval.browser.js"
                     ) {
                         repsApp(req, res, next);
                         return;

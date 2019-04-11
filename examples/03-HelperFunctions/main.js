@@ -31,7 +31,7 @@ describe("Suite", function() {
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate-eval.js"></script>',
+                    '<script src="/reps/domplate-eval.browser.js"></script>',
                 '</head>',
                 '<body><div></div></body>',
                 '<script>',

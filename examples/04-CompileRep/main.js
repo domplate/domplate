@@ -79,7 +79,7 @@ describe("Suite", function() {
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate.js"></script>',
+                    '<script src="/reps/domplate.browser.js"></script>',
                 '</head>',
                 '<body>',
                     '<div id="announcer1"></div>',

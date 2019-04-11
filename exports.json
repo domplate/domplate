@@ -1,0 +1,14 @@
+{
+    "js.browser": {
+        "domplate": {
+            "strict": {
+                "size": 85487,
+                "hash": "sha1:3109ef09c4894d29c98a7dc648a86d9749b80ba0"
+            },
+            "eval": {
+                "size": 86403,
+                "hash": "sha1:769ec0edd1f660bd703e599fe637de10359d5765"
+            }
+        }
+    }
+}

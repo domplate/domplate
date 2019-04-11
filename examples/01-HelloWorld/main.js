@@ -8,8 +8,6 @@ module.config = {
 }
 */
 
-//console.log(">>>TEST_IGNORE_LINE:GET /dist/resources/insight.renderers.default/images/<<<");
-
 console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
 
 describe("Suite", function() {
@@ -19,12 +17,10 @@ describe("Suite", function() {
             "/dist/domplate-eval.browser.js": {
                 "@it.pinf.org.browserify#s1": {
                     "src": __dirname + "/../../lib/domplate-eval.js",
-                    "dist": __dirname + "/../../dist/domplate-eval.browser.js",
                     "format": "browser",
                     "expose": {
                         "window": "domplate"
                     },
-                    "prime": true,
                     "strictMode": false
                 }
             },
@@ -43,12 +39,10 @@ describe("Suite", function() {
             "/dist/domplate.browser.js": {
                 "@it.pinf.org.browserify#s1": {
                     "src": __dirname + "/../../lib/domplate.js",
-                    "dist": __dirname + "/../../dist/domplate.browser.js",
                     "format": "browser",
                     "expose": {
                         "window": "domplate"
                     },
-                    "prime": true,
                     "strictMode": false
                 }
             },
