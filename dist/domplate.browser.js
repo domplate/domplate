@@ -15,95 +15,11 @@ self[expose[0]] = exports[expose[1]];
 
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mainModule = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 
-var DomplateDebug = exports.DomplateDebug = {
-  enabled: false,
-  console: null,
-  replaceInstance: function replaceInstance(instance) {
-    DomplateDebug = instance;
-  },
-  setEnabled: function setEnabled(enabled) {
-    this.enabled = enabled;
-  },
-  setConsole: function setConsole(console) {
-    this.console = console;
-  },
-  log: function log(label, value) {
-    if (!this.enabled) return;
-
-    if (arguments.length == 2) {
-      this.console.log(label + ': ', value);
-    } else {
-      this.console.log(label);
-    }
-  },
-  logVar: function logVar(label, value) {
-    if (!this.enabled) return;
-    this.console.log(label + ': ', [value]);
-  },
-  logInfo: function logInfo(message) {
-    if (!this.enabled) return;
-    this.console.info(message);
-  },
-  logWarn: function logWarn(message) {
-    if (!this.enabled) return;
-    this.console.warn(message);
-  },
-  logJs: function logJs(label, value) {
-    if (!this.enabled) return;
-    value = value.replace(/;/g, ';\n');
-    value = value.replace(/{/g, '{\n');
-    this.console.info(value);
-  },
-  reformatArguments: function reformatArguments(args) {
-    if (!this.enabled) return;
-    var returnVar = new Array();
-
-    for (var i = 0; i < args.length; ++i) {
-      var index = args[i];
-      returnVar.push([index]);
-    }
-
-    return {
-      'arguments': returnVar
-    };
-  },
-  startGroup: function startGroup(label, args) {
-    if (!this.enabled) return;
-
-    if (this.isArray(label)) {
-      label.splice(1, 0, ' - ');
-      this.console.group.apply(this, label);
-    } else {
-      this.console.group(label);
-    }
-
-    if (args != null) {
-      this.logVar('ARGUMENTS', DomplateDebug.reformatArguments(args));
-    }
-  },
-  endGroup: function endGroup() {
-    if (!this.enabled) return;
-    this.console.groupEnd();
-  },
-  isArray: function isArray(obj) {
-    if (obj.constructor.toString().indexOf("Array") != -1) {
-      return true;
-    }
-
-    return false;
-  }
-};
-},{}],2:[function(require,module,exports){
-
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 var RT = require("./rt");
 
-var DomplateDebug = exports.DomplateDebug = require("./debug").DomplateDebug;
-
 var Renderer = exports.Renderer = require("./renderer").Renderer;
-
-Renderer.DomplateDebug = DomplateDebug;
 
 function Domplate(exports) {
   exports.util = require("./util");
@@ -209,39 +125,29 @@ function Domplate(exports) {
       return creator(this, DomplateTag);
     },
     parseAttrs: function parseAttrs(args) {
-      DomplateDebug.startGroup('DomplateTag.parseAttrs', arguments);
-
       for (var name in args) {
-        DomplateDebug.logVar('name', name);
-        DomplateDebug.logVar('args[name]', args[name]);
         var val = parseValue(args[name]);
         readPartNames(val, this.vars);
 
-        if (name.indexOf("on") == 0) {
+        if (name.indexOf("on") === 0) {
           var eventName = name.substr(2);
           if (!this.listeners) this.listeners = [];
           this.listeners.push(eventName, val);
-        } else if (name[0] == "_") {
+        } else if (name[0] === "_" && name[1] !== "_") {
           var propName = name.substr(1);
           if (!this.props) this.props = {};
           this.props[propName] = val;
-        } else if (name[0] == "$") {
+        } else if (name[0] === "$") {
           var className = name.substr(1);
           if (!this.classes) this.classes = {};
           this.classes[className] = val;
         } else {
-          if (name == "class" && this.attrs.hasOwnProperty(name)) this.attrs[name] += " " + val;else this.attrs[name] = val;
+          if (name === "class" && this.attrs.hasOwnProperty(name)) this.attrs[name] += " " + val;else this.attrs[name] = val;
         }
       }
-
-      DomplateDebug.endGroup();
     },
     compile: function compile() {
-      DomplateDebug.startGroup(['DomplateTag.compile', this.tagName]);
-
       if (this.renderMarkup) {
-        DomplateDebug.log('ALREADY COMPILED');
-        DomplateDebug.endGroup();
         return;
       }
 
@@ -251,10 +157,8 @@ function Domplate(exports) {
 
       this.compileMarkup();
       this.compileDOM();
-      DomplateDebug.endGroup();
     },
     compileMarkup: function compileMarkup() {
-      DomplateDebug.startGroup('DomplateTag.compileMarkup');
       this.markupArgs = [];
       var topBlock = [],
           topOuts = [],
@@ -263,7 +167,7 @@ function Domplate(exports) {
         args: this.markupArgs,
         argIndex: 0
       };
-      this.generateMarkup(topBlock, topOuts, blocks, info);
+      this.generateMarkup(topBlock, topOuts, blocks, info, true);
       this.addCode(topBlock, topOuts, blocks);
       var fnBlock = ['(function (__code__, __context__, __in__, __out__'];
 
@@ -272,26 +176,20 @@ function Domplate(exports) {
       }
 
       fnBlock.push(') {');
-      fnBlock.push('  DomplateDebug.startGroup([\' .. Run Markup .. \',\'' + this.tagName + '\'],arguments);');
-      fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
       if (this.subject) fnBlock.push('  with (this) {');
       if (this.context) fnBlock.push('  with (__context__) {');
       fnBlock.push('  with (__in__) {');
       fnBlock.push.apply(fnBlock, blocks);
       if (this.subject) fnBlock.push('  }');
       if (this.context) fnBlock.push('  }');
-      fnBlock.push('DomplateDebug.endGroup();');
       fnBlock.push('}})');
       var self = this;
       var js = fnBlock.join("");
-      DomplateDebug.logVar('js', js);
       js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
       this.renderMarkup = exports.EVAL.compileMarkup(js, RT.makeMarkupRuntime(exports.EVAL, {
-        DomplateDebug: DomplateDebug,
         self: self,
         compiled: this.subject.__markup
       }));
-      DomplateDebug.endGroup();
     },
     getVarNames: function getVarNames(args) {
       if (this.vars) args.push.apply(args, this.vars);
@@ -309,8 +207,13 @@ function Domplate(exports) {
         }
       }
     },
-    generateMarkup: function generateMarkup(topBlock, topOuts, blocks, info) {
+    generateMarkup: function generateMarkup(topBlock, topOuts, blocks, info, topNode) {
       topBlock.push(',"<', this.tagName, '"');
+
+      if (topNode) {
+        if (this.subject.__dbid) this.attrs['__dbid'] = this.subject.__dbid;
+        if (this.subject.__dtid) this.attrs['__dtid'] = this.subject.__dtid;
+      }
 
       for (var name in this.attrs) {
         if (name != "class") {
@@ -333,7 +236,7 @@ function Domplate(exports) {
         }
       }
 
-      if (this.attrs.hasOwnProperty("class") || this.classes) {
+      if (this.attrs.class || this.classes && Object.keys(this.classes).length > 0) {
         topBlock.push(', " class=\\""');
         if (this.attrs.hasOwnProperty("class")) addParts(this.attrs["class"], ',', topBlock, info, true);
         topBlock.push(', " "');
@@ -381,7 +284,6 @@ function Domplate(exports) {
       }
     },
     compileDOM: function compileDOM() {
-      DomplateDebug.startGroup('DomplateTag.compileDOM');
       var path = [];
       var blocks = [];
       this.domArgs = [];
@@ -402,8 +304,6 @@ function Domplate(exports) {
       }
 
       fnBlock.push(') {');
-      fnBlock.push('  DomplateDebug.startGroup([\' .. Run DOM .. \',\'' + this.tagName + '\'],arguments);');
-      fnBlock.push('  DomplateDebug.logJs(\'js\',\'__SELF__JS__\');');
 
       for (var i = 0; i < path.loopIndex; ++i) {
         fnBlock.push('  var l', i, ' = 0;');
@@ -423,28 +323,22 @@ function Domplate(exports) {
 
       if (this.context) {
         fnBlock.push('    with (context) {');
-        fnBlock.push('      DomplateDebug.logVar(\'context\',context);');
       }
 
       fnBlock.push(blocks.join(""));
       if (this.context) fnBlock.push('    }');
       if (this.subject) fnBlock.push('  }');
-      fnBlock.push('  DomplateDebug.endGroup();');
       fnBlock.push('  return ', nodeCount, ';');
       fnBlock.push('})');
       var self = this;
       var js = fnBlock.join("");
-      DomplateDebug.logVar('js', js);
       js = js.replace('__SELF__JS__', js.replace(/\'/g, '\\\''));
       this.renderDOM = exports.EVAL.compileDOM(js, RT.makeDOMRuntime(exports.EVAL, {
-        DomplateDebug: DomplateDebug,
         self: self,
         compiled: this.subject.__dom
       }));
-      DomplateDebug.endGroup();
     },
     generateDOM: function generateDOM(path, blocks, args) {
-      DomplateDebug.startGroup(['DomplateTag.generateDOM', this.tagName], arguments);
       if (this.listeners || this.props) this.generateNodePath(path, blocks);
 
       if (this.listeners) {
@@ -464,11 +358,9 @@ function Domplate(exports) {
       }
 
       this.generateChildDOM(path, blocks, args);
-      DomplateDebug.endGroup();
       return 1;
     },
     generateNodePath: function generateNodePath(path, blocks) {
-      DomplateDebug.startGroup('DomplateTag.generateNodePath', arguments);
       blocks.push("        node = __path__(root, o");
 
       for (var i = 0; i < path.length; ++i) {
@@ -476,7 +368,6 @@ function Domplate(exports) {
       }
 
       blocks.push(");");
-      DomplateDebug.endGroup();
     },
     generateChildDOM: function generateChildDOM(path, blocks, args) {
       path.push(0);
@@ -491,7 +382,6 @@ function Domplate(exports) {
   };
   DomplateEmbed.prototype = copyObject(DomplateTag.prototype, {
     merge: function merge(args, oldTag) {
-      DomplateDebug.startGroup('DomplateEmbed.merge', arguments);
       this.value = oldTag ? oldTag.value : parseValue(args[0]);
       this.attrs = oldTag ? oldTag.attrs : {};
       this.vars = oldTag ? copyArray(oldTag.vars) : [];
@@ -504,7 +394,6 @@ function Domplate(exports) {
       }
 
       var retval = creator(this, DomplateEmbed);
-      DomplateDebug.endGroup();
       return retval;
     },
     getVarNames: function getVarNames(names) {
@@ -512,7 +401,6 @@ function Domplate(exports) {
       if (this.vars) names.push.apply(names, this.vars);
     },
     generateMarkup: function generateMarkup(topBlock, topOuts, blocks, info) {
-      DomplateDebug.startGroup('DomplateEmbed.generateMarkup', arguments);
       this.addCode(topBlock, topOuts, blocks);
       blocks.push('__link__(');
       addParts(this.value, '', blocks, info);
@@ -528,22 +416,18 @@ function Domplate(exports) {
       }
 
       blocks.push('});');
-      DomplateDebug.endGroup();
     },
     generateDOM: function generateDOM(path, blocks, args) {
-      DomplateDebug.startGroup('DomplateEmbed.generateDOM', arguments);
       var embedName = 'e' + path.embedIndex++;
       this.generateNodePath(path, blocks);
       var valueName = 'd' + path.renderIndex++;
       var argsName = 'd' + path.renderIndex++;
       blocks.push('        ', embedName + ' = __link__(node, ', valueName, ', ', argsName, ');');
-      DomplateDebug.endGroup();
       return embedName;
     }
   });
   DomplateLoop.prototype = copyObject(DomplateTag.prototype, {
     merge: function merge(args, oldTag) {
-      DomplateDebug.startGroup('DomplateLoop.merge', arguments);
       this.varName = oldTag ? oldTag.varName : args[0];
       this.iter = oldTag ? oldTag.iter : parseValue(args[1]);
       this.vars = [];
@@ -551,7 +435,6 @@ function Domplate(exports) {
       var offset = Math.min(args.length, 2);
       parseChildren(args, offset, this.vars, this.children);
       var retval = creator(this, DomplateLoop);
-      DomplateDebug.endGroup();
       return retval;
     },
     getVarNames: function getVarNames(names) {
@@ -559,9 +442,7 @@ function Domplate(exports) {
       DomplateTag.prototype.getVarNames.apply(this, [names]);
     },
     generateMarkup: function generateMarkup(topBlock, topOuts, blocks, info) {
-      DomplateDebug.startGroup('DomplateLoop.generateMarkup', arguments);
       this.addCode(topBlock, topOuts, blocks);
-      DomplateDebug.logVar('this.iter', this.iter);
       var iterName;
 
       if (this.iter instanceof Parts) {
@@ -569,8 +450,6 @@ function Domplate(exports) {
         iterName = part.names.join(',');
 
         if (part.format) {
-          DomplateDebug.logVar('part.format', part.format);
-
           for (var i = 0; i < part.format.length; ++i) {
             iterName = part.format[i] + "(" + iterName + ")";
           }
@@ -579,15 +458,12 @@ function Domplate(exports) {
         iterName = this.iter;
       }
 
-      DomplateDebug.logVar('iterName', iterName);
       blocks.push('    __loop__.apply(this, [', iterName, ', __out__, function(', this.varName, ', __out__) {');
       this.generateChildMarkup(topBlock, topOuts, blocks, info);
       this.addCode(topBlock, topOuts, blocks);
       blocks.push('    }]);');
-      DomplateDebug.endGroup();
     },
     generateDOM: function generateDOM(path, blocks, args) {
-      DomplateDebug.startGroup('DomplateLoop.generateDOM', arguments);
       var iterName = 'd' + path.renderIndex++;
       var counterName = 'i' + path.loopIndex;
       var loopName = 'l' + path.loopIndex++;
@@ -612,26 +488,21 @@ function Domplate(exports) {
       }
 
       blocks.push(') {');
-      blocks.push('       DomplateDebug.logVar(\'  .. ' + counterName + ' (counterName)\',' + counterName + ');');
-      blocks.push('       DomplateDebug.logVar(\'  .. ' + loopName + ' (loopName)\',' + loopName + ');');
       blocks.push(subBlocks.join(""));
       blocks.push('        return ', nodeCount, ';');
       blocks.push('      }]);');
       path.renderIndex = preIndex;
-      DomplateDebug.endGroup();
       return loopName;
     }
   });
   DomplateIf.prototype = copyObject(DomplateTag.prototype, {
     merge: function merge(args, oldTag) {
-      DomplateDebug.startGroup('DomplateIf.merge', arguments);
       this.booleanVar = oldTag ? oldTag.booleanVar : parseValue(args[0]);
       this.vars = [];
       this.children = oldTag ? copyArray(oldTag.children) : [];
       var offset = Math.min(args.length, 1);
       parseChildren(args, offset, this.vars, this.children);
       var retval = creator(this, DomplateIf);
-      DomplateDebug.endGroup();
       return retval;
     },
     getVarNames: function getVarNames(names) {
@@ -639,9 +510,7 @@ function Domplate(exports) {
       DomplateTag.prototype.getVarNames.apply(this, [names]);
     },
     generateMarkup: function generateMarkup(topBlock, topOuts, blocks, info) {
-      DomplateDebug.startGroup('DomplateIf.generateMarkup', arguments);
       this.addCode(topBlock, topOuts, blocks);
-      DomplateDebug.logVar('this.booleanVar', this.booleanVar);
       var expr;
 
       if (this.booleanVar instanceof Parts) {
@@ -649,8 +518,6 @@ function Domplate(exports) {
         expr = part.names.join(',');
 
         if (part.format) {
-          DomplateDebug.logVar('part.format', part.format);
-
           for (var i = 0; i < part.format.length; ++i) {
             expr = part.format[i] + "(" + expr + ")";
           }
@@ -659,15 +526,12 @@ function Domplate(exports) {
         expr = this.booleanVar;
       }
 
-      DomplateDebug.logVar('expr', expr);
       blocks.push('__if__.apply(this, [', expr, ', __out__, function(__out__) {');
       this.generateChildMarkup(topBlock, topOuts, blocks, info);
       this.addCode(topBlock, topOuts, blocks);
       blocks.push('}]);');
-      DomplateDebug.endGroup();
     },
     generateDOM: function generateDOM(path, blocks, args) {
-      DomplateDebug.startGroup('DomplateIf.generateDOM', arguments);
       var controlName = 'd' + path.renderIndex++;
       var ifName = 'if_' + path.ifIndex++;
       if (!path.length) path.push(-1, 0);
@@ -688,12 +552,9 @@ function Domplate(exports) {
       }
 
       blocks.push(') {');
-      blocks.push('       DomplateDebug.logVar(\'  .. d0\',d0);');
-      blocks.push('       DomplateDebug.logVar(\'  .. ' + ifName + ' (ifName)\',' + ifName + ');');
       blocks.push(subBlocks.join(""));
       blocks.push('      }]);');
       path.renderIndex = preIndex;
-      DomplateDebug.endGroup();
       return controlName;
     }
   });
@@ -708,14 +569,12 @@ function Domplate(exports) {
   }
 
   function parseParts(str) {
-    DomplateDebug.startGroup('parseParts', arguments);
     var index = 0;
     var parts = [];
     var m;
     var re = /\$([_A-Za-z][$_A-Za-z0-9.,|]*)/g;
 
     while (m = re.exec(str)) {
-      DomplateDebug.logVar('m', m);
       var pre = str.substr(index, re.lastIndex - m[0].length - index);
       if (pre) parts.push(pre);
       var segs = m[1].split("|");
@@ -725,16 +584,12 @@ function Domplate(exports) {
     }
 
     if (!index) {
-      DomplateDebug.logVar('str', str);
-      DomplateDebug.endGroup();
       return str;
     }
 
     var post = str.substr(index);
     if (post) parts.push(post);
     var retval = new Parts(parts);
-    DomplateDebug.logVar('retval', retval);
-    DomplateDebug.endGroup();
     return retval;
   }
 
@@ -743,15 +598,11 @@ function Domplate(exports) {
   }
 
   function parseChildren(args, offset, vars, children) {
-    DomplateDebug.startGroup('parseChildren', arguments);
-
     for (var i = offset; i < args.length; ++i) {
       var val = parseValue(args[i]);
       children.push(val);
       readPartNames(val, vars);
     }
-
-    DomplateDebug.endGroup();
   }
 
   function readPartNames(val, vars) {
@@ -864,19 +715,15 @@ exports.domplate.loadRep = function (url, options, successCallback, errorCallbac
 
   var PINF = exports.domplate.ensureLoader();
   return PINF.sandbox(url + ".rep", function (sandbox) {
-    var rep = sandbox.main(options);
+    var rep = sandbox.main(exports.domplate, options);
     successCallback(rep);
   }, errorCallback);
 };
-},{"./debug":1,"./renderer":3,"./rt":4,"./util":5,"pinf-loader-js/loader.browser":7}],3:[function(require,module,exports){
+},{"./renderer":2,"./rt":3,"./util":4,"pinf-loader-js/loader.browser":6}],2:[function(require,module,exports){
 
 var Renderer = exports.Renderer = {
-  checkDebug: function checkDebug() {
-    exports.Renderer.DomplateDebug.enabled = this.tag.subject._debug || false;
-  },
+  checkDebug: function checkDebug() {},
   renderHTML: function renderHTML(args, outputs, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.renderHTML', arguments);
     var code = [];
     var markupArgs = [code, this.tag.context ? this.tag.context : null, args, outputs];
     markupArgs.push.apply(markupArgs, this.tag.markupArgs);
@@ -886,12 +733,9 @@ var Renderer = exports.Renderer = {
       this.tag.subject._resourceListener.register(this.tag.resources);
     }
 
-    exports.Renderer.DomplateDebug.endGroup();
     return code.join("");
   },
   insertRows: function insertRows(args, before, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.insertRows', arguments);
     this.tag.compile();
     var outputs = [];
     var html = this.renderHTML(args, outputs, self);
@@ -923,12 +767,9 @@ var Renderer = exports.Renderer = {
     domArgs.push.apply(domArgs, this.tag.domArgs);
     domArgs.push.apply(domArgs, outputs);
     this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-    exports.Renderer.DomplateDebug.endGroup();
     return [firstRow, lastRow];
   },
   insertAfter: function insertAfter(args, before, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.insertAfter', arguments);
     this.tag.compile();
     var outputs = [];
     var html = this.renderHTML(args, outputs, self);
@@ -942,12 +783,9 @@ var Renderer = exports.Renderer = {
     domArgs.push.apply(domArgs, this.tag.domArgs);
     domArgs.push.apply(domArgs, outputs);
     this.tag.renderDOM.apply(self ? self : this.tag.subject ? this.tag.subject : null, domArgs);
-    exports.Renderer.DomplateDebug.endGroup();
     return root;
   },
   replace: function replace(args, parent, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.replace', arguments);
     this.tag.compile();
     var outputs = [];
     var html = this.renderHTML(args, outputs, self);
@@ -967,19 +805,13 @@ var Renderer = exports.Renderer = {
     domArgs.push.apply(domArgs, this.tag.domArgs);
     domArgs.push.apply(domArgs, outputs);
     this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-    exports.Renderer.DomplateDebug.endGroup();
     return root;
   },
   append: function append(args, parent, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.append', arguments);
     this.tag.compile();
     var outputs = [];
     var html = this.renderHTML(args, outputs, self);
-    exports.Renderer.DomplateDebug.logVar('outputs', outputs);
-    exports.Renderer.DomplateDebug.logVar('html', html);
     if (!womb || womb.ownerDocument != parent.ownerDocument) womb = parent.ownerDocument.createElement("div");
-    exports.Renderer.DomplateDebug.logVar('womb', womb);
     womb.innerHTML = html;
     root = womb.firstChild;
 
@@ -990,24 +822,17 @@ var Renderer = exports.Renderer = {
     var domArgs = [root, this.tag.context, 0];
     domArgs.push.apply(domArgs, this.tag.domArgs);
     domArgs.push.apply(domArgs, outputs);
-    exports.Renderer.DomplateDebug.logVar('this.tag.subject', this.tag.subject);
-    exports.Renderer.DomplateDebug.logVar('self', self);
-    exports.Renderer.DomplateDebug.logVar('domArgs', domArgs);
     this.tag.renderDOM.apply(self ? self : this.tag.subject, domArgs);
-    exports.Renderer.DomplateDebug.endGroup();
     return root;
   },
   render: function render(args, self) {
-    this.checkDebug();
-    exports.Renderer.DomplateDebug.startGroup('Renderer.render', arguments);
     this.tag.compile();
     var outputs = [];
     var html = this.renderHTML(args, outputs, self);
-    exports.Renderer.DomplateDebug.endGroup();
     return html;
   }
 };
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1037,17 +862,13 @@ exports.makeMarkupRuntime = function (EVAL, context) {
 
   var exports = {};
   exports.compiled = context.compiled && context.compiled[tagName] || null;
-  var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
   exports.__link__ = function (tag, code, outputs, args) {
     if (!tag) {
-      DomplateDebug.logWarn('tag not defined');
       return;
     }
 
     if (!tag.tag) {
-      DomplateDebug.logVar('tag', tag);
-      DomplateDebug.logWarn('tag.tag not defined');
       return;
     }
 
@@ -1125,7 +946,6 @@ exports.makeMarkupRuntime = function (EVAL, context) {
   exports.__if__ = function (booleanVar, outputs, fn) {
     var ifControl = [];
     outputs.push(ifControl);
-    DomplateDebug.logVar('j  .. booleanVar', booleanVar);
 
     if (booleanVar) {
       ifControl.push(1);
@@ -1153,7 +973,6 @@ exports.makeDOMRuntime = function (EVAL, context) {
 
   var exports = {};
   exports.compiled = context.compiled && context.compiled[tagName] || null;
-  var DomplateDebug = exports.DomplateDebug = context.DomplateDebug;
 
   exports.__bind__ = function (object, fn) {
     return function (event) {
@@ -1162,16 +981,11 @@ exports.makeDOMRuntime = function (EVAL, context) {
   };
 
   exports.__link__ = function (node, tag, args) {
-    DomplateDebug.startGroup('__link__', arguments);
-
     if (!tag) {
-      DomplateDebug.logWarn('tag not defined');
       return 0;
     }
 
     if (!tag.tag) {
-      DomplateDebug.logVar('tag', tag);
-      DomplateDebug.logWarn('tag.tag not defined');
       return 0;
     }
 
@@ -1184,46 +998,32 @@ exports.makeDOMRuntime = function (EVAL, context) {
     domArgs.push.apply(domArgs, tag.tag.domArgs);
     domArgs.push.apply(domArgs, args);
     var oo = tag.tag.renderDOM.apply(tag.tag.subject, domArgs);
-    DomplateDebug.endGroup();
     return oo;
   };
 
   exports.__loop__ = function (iter, fn) {
-    DomplateDebug.startGroup('__loop__', arguments);
-    DomplateDebug.logVar('iter', iter);
-    DomplateDebug.logVar('fn', fn);
+    if (!Array.isArray(iter)) {
+      return 0;
+    }
+
     var nodeCount = 0;
 
     for (var i = 0; i < iter.length; ++i) {
       iter[i][0] = i;
       iter[i][1] = nodeCount;
       nodeCount += fn.apply(this, iter[i]);
-      DomplateDebug.logVar(' .. nodeCount', nodeCount);
     }
 
-    DomplateDebug.logVar('iter', iter);
-    DomplateDebug.endGroup();
     return nodeCount;
   };
 
   exports.__if__ = function (control, fn) {
-    DomplateDebug.startGroup('__if__', arguments);
-    DomplateDebug.logVar('control', control);
-    DomplateDebug.logVar('fn', fn);
-
     if (control && control[0]) {
-      DomplateDebug.logInfo('Running IF');
       fn.apply(this, [0, control[1]]);
-    } else {
-      DomplateDebug.logInfo('Skipping IF');
-    }
-
-    DomplateDebug.endGroup();
+    } else {}
   };
 
   exports.__path__ = function (parent, offset) {
-    DomplateDebug.startGroup('__path__', arguments);
-    DomplateDebug.logVar('parent', parent);
     var root = parent;
 
     for (var i = 2; i < arguments.length; ++i) {
@@ -1237,13 +1037,12 @@ exports.makeDOMRuntime = function (EVAL, context) {
       }
     }
 
-    DomplateDebug.endGroup();
     return parent;
   };
 
   return exports;
 };
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1696,7 +1495,7 @@ exports.isArguments = function (object) {
 
   return true;
 };
-},{"deepmerge":6}],6:[function(require,module,exports){
+},{"deepmerge":5}],5:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
@@ -1795,7 +1594,7 @@ return deepmerge_1;
 
 })));
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * License: Zero-Clause BSD - https://opensource.org/licenses/0BSD
@@ -1861,7 +1660,7 @@ exports.PINF = (function (global) {
 			null
 ));
 
-},{"./loader":8}],8:[function(require,module,exports){
+},{"./loader":7}],7:[function(require,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * License: Zero-Clause BSD - https://opensource.org/licenses/0BSD
@@ -2638,7 +2437,7 @@ if (exports) exports.Loader = Loader;
 
 })(typeof exports !== "undefined" ? exports : null);
 
-},{}]},{},[2])(2)
+},{}]},{},[1])(1)
 });
 
 })((typeof require !== "undefined" && require) || undefined, (typeof exports !== "undefined" && exports) || undefined, (typeof module !== "undefined" && module) || undefined))

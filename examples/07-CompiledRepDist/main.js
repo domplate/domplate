@@ -59,12 +59,12 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
         
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer1', 3000);
+        client.waitForElementPresent('BODY #announcer1 > [__dbid]', 3000);
         client.expect.element('BODY DIV#announcer1').text.to.contain([
             'Hello World!'
         ].join(""));
 
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer2', 3000);
+        client.waitForElementPresent('BODY #announcer2 > [__dbid]', 3000);
         client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World!'
         ].join(""));

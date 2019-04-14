@@ -11,5 +11,5 @@
 /examples/*/.actual.*
 *~.compiled.*
 ~.rt_*
-/.~*
+.~*
 /package-lock.json

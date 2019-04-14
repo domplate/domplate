@@ -58,8 +58,8 @@ describe("Suite", function() {
                                     ),
 
                                     messageTag: domplate.tags.DIV({
-                                        "class": "messageTagClass"
-                                    }, "$message"),
+                                            "class": "messageTagClass"
+                                        }, "$message"),
 
                                     hasMore: function (message) {
                                         return !!message;
@@ -109,18 +109,18 @@ describe("Suite", function() {
 
         if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
 
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer1', 3000);
+        client.waitForElementPresent('BODY #announcer1 > [__dbid]', 3000);
         client.expect.element('BODY DIV#announcer1').text.to.contain([
             'HELLO WORLD! (0)'
         ].join(""));
 
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer2', 3000);
+        client.waitForElementPresent('BODY #announcer2 > [__dbid]', 3000);
         client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World! (1)',
             'no more'
         ].join("\n"));
 
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer3', 3000);
+        client.waitForElementPresent('BODY #announcer3 > [__dbid]', 3000);
         client.expect.element('BODY DIV#announcer3').text.to.contain([
             'Hello World! (1)',
             'Hello World! (2)'

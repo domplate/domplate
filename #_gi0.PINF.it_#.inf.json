@@ -6,6 +6,21 @@
 
     ":browserify:": "gi0.PINF.it/wrappers/it.pinf.org.browserify/#_gi0.PINF.it_#.",
 
+    "# stderr": "/dist/domplate.js",
+    "gi0.PINF.it @ # :browserify: write() /dist/domplate.js": {
+        "src": "./lib/domplate.js",
+        "format": "node",
+        "renameRequire": true,
+        "strictMode": false
+    },
+    "# stderr": "/dist/domplate-eval.js",
+    "gi0.PINF.it @ # :browserify: write() /dist/domplate-eval.js": {
+        "src": "./lib/domplate-eval.js",
+        "format": "node",
+        "renameRequire": true,
+        "strictMode": false
+    },
+
     "# stderr": "/dist/domplate.browser.js",
     "gi0.PINF.it @ # :browserify: write() /dist/domplate.browser.js": {
         "src": "./lib/domplate.js",
@@ -24,6 +39,9 @@
         },
         "strictMode": false
     },
+
+    "gi0.Sourcemint.org @ /exports.json # set() js/domplate/strict": "gi0.PINF.it @ # meta() /dist/domplate.js",
+    "gi0.Sourcemint.org @ /exports.json # set() js/domplate/eval": "gi0.PINF.it @ # meta() /dist/domplate-eval.js",
 
     "gi0.Sourcemint.org @ /exports.json # set() js.browser/domplate/strict": "gi0.PINF.it @ # meta() /dist/domplate.browser.js",
     "gi0.Sourcemint.org @ /exports.json # set() js.browser/domplate/eval": "gi0.PINF.it @ # meta() /dist/domplate-eval.browser.js"

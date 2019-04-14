@@ -12,7 +12,7 @@ module.exports = {
     },
     css: (css () >>>
 
-        :scope .announcer {
+        .announcer {
             background-color: red;
         }
 

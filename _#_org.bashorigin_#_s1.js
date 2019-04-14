@@ -54,7 +54,7 @@ exports.forConfig = function (CONFIG) {
                         var PINF = {
                             bundle: function (id, modules) {
                                 window.PINF.sandbox(modules, function (sandbox) {
-                                    var rep = sandbox.main();
+                                    var rep = sandbox.main(window.domplate);
                                     window.ready(rep);
                                 });
                             }
@@ -214,17 +214,17 @@ exports.forConfig = function (CONFIG) {
                                 codeblock: function (codeblock) {
     
                                     if (codeblock.getFormat() === "css") {
-    
+
                                         var css = codeblock.getCode();
-    
-                                        css = css.replace(/:scope/g, '[_dbid="' + repBuildId + '"]');
-    
+
+                                        css = css.replace(/:scope\s*/g, '');
+
                                         rawCssCode = css;
-    
+
                                         codeblock._format = "text";
                                         codeblock.setCode(css);
                                     }
-    
+
                                     return codeblock;
                                 }
                             }
@@ -293,6 +293,36 @@ exports.forConfig = function (CONFIG) {
 
                 repBuildId = repBuildId || LIB.CRYPTO.createHash('sha1').update(repCode).digest('hex');
 
+                // TODO: Optionally use canonical namespace or hash.
+                var repTagId = PATH.join(CONFIG.repIdPrefix || '', selfSubpath, (typeof dist === "boolean" || !dist) ? '' : dist, uri);
+
+
+                if (cssCode) {
+                    const POSTCSS = require("postcss");
+                    cssCode = POSTCSS([
+                        POSTCSS.plugin('scope-selectors-plugin', function (opts) {
+                            opts = opts || {};
+
+                            // Work with options here
+                            return function (root, result) {
+
+                                root.walkRules(function(rule) {
+                                    // We'll put more code here in a moment…
+                                    rule.selector = rule.selector.replace(/[\n\s\t]+/g, ' ').replace(/(^\s|\s$)/g, '');
+
+                                    var selectors = rule.selector.split(',');
+                                    selectors = selectors.map(function (selector) {
+                                        return selector.replace(/^([A-Za-z0-9_\-\.]+)(\[.+\])?(:.+)?(\s.+)?$/, '$1[__dbid="' + repBuildId + '"]$2$3$4');
+                                    });
+                                    rule.selector = selectors.join(',');
+                                });                                                    
+                                // Transform CSS AST here
+                            };
+                        })
+                    ]).process(cssCode).css;
+                }
+
+
                 // Wrap rep
                 repCode = [
                     'function impl (domplate) {',
@@ -301,34 +331,40 @@ exports.forConfig = function (CONFIG) {
                     'function css () {',
                         'return atob("' + (Buffer.from(cssCode || "").toString('base64')) + '")',
                     '}',
-                    'exports.main = function (options) {',
+                    'exports.main = function (domplate, options) {',
                         'options = options || {};',
-                        'var domplate = window.domplate;',
                         'var rep = impl(domplate);',
                         'rep.__dom = "%%DOM%%";',
                         'rep.__markup = "%%MARKUP%%";',
+                        // '__dbid' - Domplate Build ID
+                        'rep.__dbid = "' + repBuildId + '";',
+                        // '__dtid' - Domplate Tag ID
+                        'rep.__dtid = "' + repTagId + '";',
                         'var res = domplate.domplate(rep);',
                         // TODO: Do this in a better way.
-                        'var renderedCss = false;',
+                        'var injectedCss = false;',
+                        'rep.__ensureCssInjected = function () {',
+                            'if (injectedCss) return;',
+                            'injectedCss = true;',
+                            // TODO: Buffer all CSS into the same stylesheet
+                            //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
+                            'var node = document.createElement("style");',
+                            'var cssCode = css();',
+                            'if (options.cssBaseUrl) {',
+                                'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
+                            '}',
+                            'node.innerHTML = cssCode;',
+                            'document.body.appendChild(node);',
+                        '};',
                         'Object.keys(rep).forEach(function (tagName) {',
                             'if (!rep[tagName].tag) return;',
                             'var replace_orig = res[tagName].replace;',
                             'res[tagName].replace = function () {',
                                 'var res = replace_orig.apply(this, arguments);',
                                 'if (!res) return;',
-                                'if (renderedCss) return;',
-                                'renderedCss = true;',
-                                // '_dbid' - Domplate Build ID
-                                'res.parentNode.setAttribute("_dbid", "' + repBuildId + '");',
-                                // TODO: Buffer all CSS into the same stylesheet
-                                //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
-                                'var node = document.createElement("style");',
-                                'var cssCode = css();',
-                                'if (options.cssBaseUrl) {',
-                                    'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
-                                '}',
-                                'node.innerHTML = cssCode;',
-                                'document.body.appendChild(node);',
+                                'setTimeout(function () {',
+                                    'rep.__ensureCssInjected();',
+                                '}, 0);',
                                 'return res;',
                             '}',
                         '});',
@@ -443,7 +479,7 @@ exports.forConfig = function (CONFIG) {
                                 // TODO: Use PostCSS for this
                                 var filepaths = [];
                                 if (rawCssCode) {
-                                    var re = /url\s*\(([^\)]+)\);/g;
+                                    var re = /url\s*\(([^\)]+)\)[^;]*;?/g;
                                     var match = null;
                                     while ( match = re.exec(rawCssCode) ) {
                                         filepaths.push(match[1]);

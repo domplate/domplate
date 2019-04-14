@@ -2,12 +2,24 @@
     "js.browser": {
         "domplate": {
             "strict": {
-                "size": 85487,
-                "hash": "sha1:3109ef09c4894d29c98a7dc648a86d9749b80ba0"
+                "size": 77697,
+                "hash": "sha1:a8f431a19838898504442c2a1ef54f6f3d2784da"
             },
             "eval": {
-                "size": 86403,
-                "hash": "sha1:769ec0edd1f660bd703e599fe637de10359d5765"
+                "size": 78611,
+                "hash": "sha1:41622c260147360970adb49ab39c38e34013276c"
+            }
+        }
+    },
+    "js": {
+        "domplate": {
+            "strict": {
+                "size": 77089,
+                "hash": "sha1:81f482befa319d4de8d8933ee0cec7dfeb677a9e"
+            },
+            "eval": {
+                "size": 78011,
+                "hash": "sha1:f34dd8b631787f9b828b6e5035c14386b2b4969c"
             }
         }
     }

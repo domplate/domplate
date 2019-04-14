@@ -46,19 +46,20 @@ describe("Suite", function() {
     it('Test', function (client) {
 
         client.url('http://localhost:' + process.env.PORT + '/').pause(500);
+
+if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
         
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer1', 5000);
+        client.waitForElementPresent('BODY #announcer1 > [__dbid]', 5000);
+
         client.expect.element('BODY DIV#announcer1').text.to.contain([
             'Hello World!'
         ].join(""));
-        client.expect.element('BODY DIV#announcer1').to.have.attribute('_dbid');
         client.expect.element('BODY DIV#announcer1 > DIV').to.have.attribute('class').equals('announcer ');        
         
-        client.waitForElementPresent('BODY DIV[_dbid]#announcer2', 5000);
+        client.waitForElementPresent('BODY #announcer2 > [__dbid]', 5000);
         client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World!'
         ].join(""));
-        client.expect.element('BODY DIV#announcer2').to.have.attribute('_dbid');
         client.expect.element('BODY DIV#announcer2 > DIV').to.have.attribute('class').equals('announcer ');
         client.expect.element('BODY DIV#announcer2 > DIV').to.have.attribute('style').equals("border: 1px solid black; padding: 5px;");
         
