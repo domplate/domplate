@@ -326,11 +326,19 @@ exports.forConfig = function (CONFIG) {
                 // Wrap rep
                 repCode = [
                     'function impl (domplate) {',
-                    repCode,
+                        repCode,
                     '}',
-                    'function css () {',
-                        'return atob("' + (Buffer.from(cssCode || "").toString('base64')) + '")',
-                    '}',
+                    ((function () {
+                        if (CONFIG.externalizeCss) {
+                            return '';
+                        } else {
+                            return [
+                                'function css () {',
+                                'return atob("' + (Buffer.from(cssCode || "").toString('base64')) + '")',
+                            '}',
+                        ].join("\n");
+                        }
+                    })()),
                     'exports.main = function (domplate, options) {',
                         'options = options || {};',
                         'var rep = impl(domplate);',
@@ -341,6 +349,7 @@ exports.forConfig = function (CONFIG) {
                         // '__dtid' - Domplate Tag ID
                         'rep.__dtid = "' + repTagId + '";',
                         'var res = domplate.domplate(rep);',
+
                         // TODO: Do this in a better way.
                         'var injectedCss = false;',
                         'rep.__ensureCssInjected = function () {',
@@ -348,14 +357,35 @@ exports.forConfig = function (CONFIG) {
                             'injectedCss = true;',
                             // TODO: Buffer all CSS into the same stylesheet
                             //       IE9 only supports 32 stylesheets which was increased to 4095 in IE 10.
-                            'var node = document.createElement("style");',
-                            'var cssCode = css();',
-                            'if (options.cssBaseUrl) {',
-                                'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
-                            '}',
-                            'node.innerHTML = cssCode;',
-                            'document.body.appendChild(node);',
+                            ((function () {
+                                if (CONFIG.externalizeCss) {
+
+                                    const distSub = (typeof dist === "boolean" || !dist) ? '' : dist;
+                                    const cssUri = LIB.PATH.join(uri + '.rep.css');
+                                    const cssPath = LIB.PATH.join(baseDistPath, selfSubpath, distSub, cssUri);
+
+                                    FS.outputFileSync(cssPath, cssCode, 'utf8');
+
+                                    return [
+                                        'domplate.loadStyle("' + cssUri + '", options.cssBaseUrl || undefined);',
+                                    ].join("\n");
+
+                                } else {
+                                    return [
+                                        'var node = document.createElement("style");',
+                                        'var cssCode = css();',
+                                        'if (cssCode) {',
+                                            'if (options.cssBaseUrl) {',
+                                                'cssCode = cssCode.replace(/(url\\s*\\()([^\\)]+\\))/g, "$1" + options.cssBaseUrl + "$2");',
+                                            '}',
+                                            'node.innerHTML = cssCode;',
+                                            'document.body.appendChild(node);',
+                                        '}'
+                                    ].join("\n");
+                                }
+                            })()),
                         '};',
+
                         'Object.keys(rep).forEach(function (tagName) {',
                             'if (!rep[tagName].tag) return;',
                             'var replace_orig = res[tagName].replace;',

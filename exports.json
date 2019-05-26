@@ -2,24 +2,24 @@
     "js.browser": {
         "domplate": {
             "strict": {
-                "size": 77697,
-                "hash": "sha1:a8f431a19838898504442c2a1ef54f6f3d2784da"
+                "size": 78626,
+                "hash": "sha1:471e2d4e6720bd2043d5d1559564db957861500c"
             },
             "eval": {
-                "size": 78611,
-                "hash": "sha1:41622c260147360970adb49ab39c38e34013276c"
+                "size": 79540,
+                "hash": "sha1:03bdea05d32d4458f013ff51310909dd9137e1c6"
             }
         }
     },
     "js": {
         "domplate": {
             "strict": {
-                "size": 77089,
-                "hash": "sha1:81f482befa319d4de8d8933ee0cec7dfeb677a9e"
+                "size": 78018,
+                "hash": "sha1:8fe5114a7642156d5a930990c6cc440688a15e76"
             },
             "eval": {
-                "size": 78011,
-                "hash": "sha1:f34dd8b631787f9b828b6e5035c14386b2b4969c"
+                "size": 78940,
+                "hash": "sha1:927078733cb3ee89cac9696fb08df14ca7ca885c"
             }
         }
     }

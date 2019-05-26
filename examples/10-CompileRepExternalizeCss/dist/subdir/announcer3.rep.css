@@ -1,0 +1,17 @@
+
+.announcer[__dbid="b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a"] {
+    background-color: cyan;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.announcer[__dbid="b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a"] > DIV {
+    display: inline-block;
+}
+
+.announcer[__dbid="b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a"] > DIV.img {
+    background-image: url(images/information.png);
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+}

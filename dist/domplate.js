@@ -9,6 +9,31 @@ var Renderer = exports.Renderer = _require_("./renderer").Renderer;
 
 function Domplate(exports) {
   exports.util = _require_("./util");
+
+  exports.loadStyle = function (uri, baseUrl) {
+    var WINDOW = window;
+
+    if (typeof baseUrl === 'undefined' && WINDOW && typeof WINDOW.pmodule !== "undefined" && !/^\//.test(uri)) {
+      uri = [WINDOW.pmodule.filename.replace(/\/([^\/]*)$/, ""), uri].join("/").replace(/\/\.?\//g, "/");
+    } else if (typeof baseUrl !== 'undefined') {
+      uri = [baseUrl, uri].join("/").replace(/\/\.?\//g, "/");
+    }
+
+    return new Promise(function (resolve, reject) {
+      console.log("[domplate] Load style:", uri);
+      var link = window.document.createElementNS ? window.document.createElementNS("http://www.w3.org/1999/xhtml", "link") : window.document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = uri;
+
+      link.onload = function () {
+        resolve();
+      };
+
+      var head = window.document.getElementsByTagName("head")[0] || window.document.documentElement;
+      head.appendChild(link);
+    });
+  };
+
   exports.EVAL = {
     compileMarkup: function compileMarkup(code, context) {
       return context.compiled(context);
@@ -660,7 +685,13 @@ function Domplate(exports) {
   }
 
   function creator(tag, cons) {
-    var fn = new Function("var tag = arguments.callee.tag;" + "var cons = arguments.callee.cons;" + "var newTag = new cons();" + "return newTag.merge(arguments, tag);");
+    var fn = function fn() {
+      var tag = arguments.callee.tag;
+      var cons = arguments.callee.cons;
+      var newTag = new cons();
+      return newTag.merge(arguments, tag);
+    };
+
     fn.tag = tag;
     fn.cons = cons;
     extend(fn, Renderer);
@@ -668,12 +699,14 @@ function Domplate(exports) {
   }
 
   function defineTags() {
-    for (var i = 0; i < arguments.length; ++i) {
-      var tagName = arguments[i];
-      var fn = new Function("var newTag = new this._domplate_.DomplateTag('" + tagName + "'); return newTag.merge(arguments);");
+    Array.from(arguments).forEach(function (tagName) {
       var fnName = tagName.toUpperCase();
-      exports.tags[fnName] = fn;
-    }
+
+      exports.tags[fnName] = function () {
+        var newTag = new this._domplate_.DomplateTag(tagName);
+        return newTag.merge(arguments);
+      };
+    });
   }
 
   defineTags("a", "button", "br", "canvas", "col", "colgroup", "div", "fieldset", "form", "h1", "h2", "h3", "hr", "img", "input", "label", "legend", "li", "ol", "optgroup", "option", "p", "pre", "select", "span", "strong", "table", "tbody", "td", "textarea", "tfoot", "th", "thead", "tr", "tt", "ul");
