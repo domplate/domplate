@@ -265,6 +265,33 @@ exports.forConfig = function (CONFIG) {
                             }
 
                             repCode.rep = masterRepCode.rep;
+                        } else
+                        if (repCode.extend) {
+
+                            var masterRepCode = loadRepAtPath(LIB.PATH.join(repCodeSrcPath, "..", repCode.extend.replace(/(\.js)?$/, ".js")));
+
+                            if (masterRepCode.structs) {
+                                repCode.structs = LIB.LODASH.merge(masterRepCode.structs, repCode.structs || {});
+                            }
+
+                            if (masterRepCode.css) {
+                                repCode.css = masterRepCode.css + "\n" + (repCode.css || "");
+                            }
+
+                            repCode.rep = `
+                                return ((function () {
+                                    const master = (function () {
+                                        ${masterRepCode.rep}
+                                    })();
+                                    const sub = (function () {
+                                        ${repCode.rep}
+                                    })();
+                                    Object.keys(sub).forEach(function (name) {
+                                        master[name] = sub[name];
+                                    });
+                                    return master;
+                                })());
+                            `;
                         }
 
                         return repCode;
@@ -321,7 +348,6 @@ exports.forConfig = function (CONFIG) {
                         })
                     ]).process(cssCode).css;
                 }
-
 
                 // Wrap rep
                 repCode = [

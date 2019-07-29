@@ -29,7 +29,6 @@ Server: http://localhost:8080/
 [bash.origin.express] Routing request / with method GET due to route /announcer2.rep.js
 [bash.origin.express] Routing request /announcer3.rep.js with method GET due to route { /^\/reps2\// fast_star: false, fast_slash: false }
 [bash.origin.express] Routing request / with method GET due to route /announcer3.rep.js
-[domplate] Load style: announcer3.rep.css
 [bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
 [bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\// fast_star: false, fast_slash: false }
 [bash.origin.express] Routing request /subdir/announcer3.rep.css with method GET due to route { /^\/reps2\// fast_star: false, fast_slash: false }
