@@ -1,16 +1,4 @@
 {
-    "js.browser": {
-        "domplate": {
-            "strict": {
-                "size": 78572,
-                "hash": "sha1:81e4d4155f50207f2879d62ebc1a03302facd61f"
-            },
-            "eval": {
-                "size": 79486,
-                "hash": "sha1:997de8894adea6dde0874ef344530a831acc7c14"
-            }
-        }
-    },
     "js": {
         "domplate": {
             "strict": {
@@ -20,6 +8,18 @@
             "eval": {
                 "size": 78886,
                 "hash": "sha1:86ffaf10494fee5eefdf6fbb5854d6f725a1a19b"
+            }
+        }
+    },
+    "js.browser": {
+        "domplate": {
+            "strict": {
+                "size": 78572,
+                "hash": "sha1:81e4d4155f50207f2879d62ebc1a03302facd61f"
+            },
+            "eval": {
+                "size": 79486,
+                "hash": "sha1:997de8894adea6dde0874ef344530a831acc7c14"
             }
         }
     }

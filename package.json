@@ -43,8 +43,8 @@
   },
   "scripts": {
     "test": "bash.origin.test examples",
-    "dev": "pinf.it . --watch",
-    "build": "pinf.it ."
+    "dev": "pinf.it ./#!inf.json --watch",
+    "build": "pinf.it ./#!inf.json"
   },
   "dependencies": {
     "deepmerge": "^2.1.1",
