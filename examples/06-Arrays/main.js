@@ -8,6 +8,8 @@ module.config = {
 }
 */
 
+console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+
 const LIB = require('bash.origin.lib').js;
 
 describe("Suite", function() {

@@ -2,6 +2,8 @@
 >>>TEST_IGNORE_LINE:\d milliseconds.$<<<
 >>>TEST_IGNORE_LINE:\d+\spassing\s\([^\)]+\)<<<
 environments: default
+>>>TEST_IGNORE_LINE:"GET \/<<<
+>>>TEST_IGNORE_LINE:\[pinf.it\].+Writing to:<<<
 
 
 - [0;36mConnecting to localhost on port 4444...
@@ -19,12 +21,6 @@ environments: default
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
     ✓ Test
-127.0.0.1 - "GET / HTTP/1.1" 200 - "-"
-127.0.0.1 - "GET /reps/domplate.browser.js HTTP/1.1" 200 - "http://localhost:8080/"
-[34m[1m[pinf.it][22m[39m [34m[1mWriting to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/runTool/it.pinf.org.browserify~build~v0~611f07b45ae26e799fed82237c6c217d0d29317b[22m[39m
-[34m[1m[pinf.it][22m[39m [34m[1mWriting to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/runTool/it.pinf.org.browserify~build~v0~452f993aa6776e4a113828dfd41f1c1c8eb6c76d[22m[39m
-127.0.0.1 - "GET /reps/announcer2.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
-127.0.0.1 - "GET /reps/announcer1.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
 
 
 
