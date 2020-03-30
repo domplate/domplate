@@ -8,14 +8,16 @@ module.config = {
 }
 */
 
-console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
+const LIB = require('bash.origin.lib').js;
 
 describe("Suite", function() {
 
-    require('bash.origin.lib').js.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
+//    this.timeout(60 * 60 * 24 * 1000);
+
+    const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "/dist/domplate-eval.browser.js": {
-                "@it.pinf.org.browserify#s1": {
+                "@it.pinf.org.browserify # router/v0": {
                     "src": __dirname + "/../../lib/domplate-eval.js",
                     "format": "browser",
                     "expose": {
@@ -37,7 +39,7 @@ describe("Suite", function() {
                 '</script>'
             ].join("\n"),
             "/dist/domplate.browser.js": {
-                "@it.pinf.org.browserify#s1": {
+                "@it.pinf.org.browserify # router/v0": {
                     "src": __dirname + "/../../lib/domplate.js",
                     "format": "browser",
                     "expose": {
@@ -47,7 +49,7 @@ describe("Suite", function() {
                 }
             },
             "^/reps/": {
-                "@github.com~cadorn~domplate#s1": {
+                "@domplate # router/v0": {
                     "compile": true,
                     "reps": {
                         "announcer1": {
@@ -76,25 +78,27 @@ describe("Suite", function() {
         }
     });
 
-    it('Test', function (client) {
+    it('Test', async function (client) {
 
-        client.url('http://localhost:' + process.env.PORT + '/eval').pause(500);
+        const PORT = (await server).config.port;
+
+        client.url('http://localhost:' + PORT + '/eval').pause(500);
         
         var selector = 'BODY DIV DIV';
 
-        client.waitForElementPresent(selector, 3000);
+        client.waitForElementPresent(selector, 10 * 1000);
 
         client.expect.element(selector).text.to.contain([
             'Hello World!'
         ].join("\n"));
 
-        client.url('http://localhost:' + process.env.PORT + '/no-eval').pause(500);
+        client.url('http://localhost:' + PORT + '/no-eval').pause(500);
 
 if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
 
         var selector = 'BODY DIV DIV';
 
-        client.waitForElementPresent(selector, 3000);
+        client.waitForElementPresent(selector, 10 * 1000);
 
         client.expect.element(selector).text.to.contain([
             'Hello World!'

@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <script src="../dist/domplate-eval.browser.js"></script>
+    </head>
+    <body>
+        <div></div>
+    </body>
+    <script>
+        var rep = window.domplate.domplate({
+            tag: window.domplate.tags.DIV("$message")
+        });
+        rep.tag.replace({
+            message: "Hello World!"
+        }, document.querySelector("DIV"));
+    </script>
+</html>

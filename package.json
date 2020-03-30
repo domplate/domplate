@@ -1,5 +1,4 @@
 {
-  "uid": "http://registry.pinf.org/cadorn.org/github/domplate/",
   "name": "domplate",
   "version": "0.4.0-pre.0",
   "pm": {
@@ -40,11 +39,12 @@
     "jsdom": "^11.5.1",
     "pinf-loader-js": "^0.4.22",
     "fs-extra": "^5.0.0",
-    "bash.origin.lib": "^0.4.0-pre.0"
+    "bash.origin.lib": "^0.4.0-pre.20"
   },
   "scripts": {
     "test": "bash.origin.test examples",
-    "build": "pinf.it ./#_gi0.PINF.it_#.inf.json"
+    "dev": "pinf.it . --watch",
+    "build": "pinf.it ."
   },
   "dependencies": {
     "deepmerge": "^2.1.1",

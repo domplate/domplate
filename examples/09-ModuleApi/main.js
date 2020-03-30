@@ -8,14 +8,14 @@ module.config = {
 }
 */
 
-console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
+const LIB = require('bash.origin.lib').js;
 
 describe("Suite", function() {
 
-    require('bash.origin.lib').js.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
+    const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@github.com~cadorn~domplate#s1": {
+                "@domplate # router/v0": {
                     "compile": true,
                     "reps": {
                         "announcer1": __dirname + "/../05-CompiledRepCss/announcer1.rep.js"
@@ -23,7 +23,7 @@ describe("Suite", function() {
                 }
             },
             "/client.js": {
-                "@it.pinf.org.browserify#s1": {
+                "@it.pinf.org.browserify # router/v0": {
                     "src": "./client.js",
                     "format": "browser",
                     "expose": {
@@ -45,13 +45,15 @@ describe("Suite", function() {
         }
     });
 
-    it('Test', function (client) {
+    it('Test', async function (client) {
 
-        client.url('http://localhost:' + process.env.PORT + '/').pause(500);
+        const PORT = (await server).config.port;
+
+        client.url('http://localhost:' + PORT + '/').pause(500);
 
 if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
         
-        client.waitForElementPresent('BODY #announcer1 > [__dbid]', 5000);
+        client.waitForElementPresent('BODY #announcer1 > [__dbid]', 10 * 1000);
 
         client.expect.element('BODY DIV#announcer1').text.to.contain([
             'Hello World!'

@@ -2,10 +2,16 @@
 >>>TEST_IGNORE_LINE:\d milliseconds.$<<<
 >>>TEST_IGNORE_LINE:\d+\spassing\s\([^\)]+\)<<<
 environments: default
->>>TEST_IGNORE_LINE:^[\d\.]+\s<<<
+>>>TEST_IGNORE_LINE:"GET \/<<<
+>>>TEST_IGNORE_LINE:\[pinf.it\].+Writing to:<<<
 
+
+- [0;36mConnecting to localhost on port 4444...
+[0m
 
   Suite
+[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/domplate~router~v0[22m[39m
+[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/it.pinf.org.browserify~router~v0[22m[39m
 [bash.origin.express] Adding route: /domplate-eval.browser.js
 [bash.origin.express] Adding route: /domplate.browser.js
 [bash.origin.express] Adding route: /announcer3.rep.js
@@ -19,22 +25,7 @@ environments: default
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
-[READY]
-[bash.origin.express] Routing request / with method GET due to route /
-[bash.origin.express] Routing request /domplate.browser.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /domplate.browser.js
-[bash.origin.express] Routing request /announcer1.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /announcer1.rep.js
-[bash.origin.express] Routing request /announcer2.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /announcer2.rep.js
-[bash.origin.express] Routing request /announcer3.rep.js with method GET due to route { /^\/reps2\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /announcer3.rep.js
-[bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request /subdir/announcer3.rep.css with method GET due to route { /^\/reps2\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request /subdir/announcer3.rep.css with method GET due to route { /^\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\/reps2\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request /subdir/images/information.png with method GET due to route { /^\// fast_star: false, fast_slash: false }
+    ✓ Test
 
 
 

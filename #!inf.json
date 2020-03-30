@@ -1,0 +1,84 @@
+#!/usr/bin/env inf
+{
+    "#": "gi0.PINF.it/core/v0",
+
+    "#": {
+        "browserify": "it.pinf.org.browserify",
+        "sm.exports": "gi0.Sourcemint.org/exports.json"
+    },
+
+    ":build:": "browserify @ build/v0",
+    ":exports:": "sm.exports @ exports/v0",
+
+
+    "gi0.PINF.it/core/v0 @ # :build: write() /dist/domplate.js": {
+        "src": "./lib/domplate.js",
+        "format": "node",
+        "renameRequire": true,
+        "strictMode": false
+    },
+    "gi0.PINF.it/core/v0 @ # :build: write() /dist/domplate-eval.js": {
+        "src": "./lib/domplate-eval.js",
+        "format": "node",
+        "renameRequire": true,
+        "strictMode": false
+    },
+
+    "gi0.PINF.it/core/v0 @ # :build: write() /dist/domplate.browser.js": {
+        "src": "./lib/domplate.js",
+        "format": "browser",
+        "expose": {
+            "window": "domplate"
+        },
+        "strictMode": false
+    },
+    "gi0.PINF.it/core/v0 @ # :build: write() /dist/domplate-eval.browser.js": {
+        "src": "./lib/domplate-eval.js",
+        "format": "browser",
+        "expose": {
+            "window": "domplate"
+        },
+        "strictMode": false
+    },
+
+
+    "gi0.PINF.it/core/v0 @ # :exports: set() js/domplate/strict": "/dist/domplate.js",
+    "gi0.PINF.it/core/v0 @ # :exports: set() js/domplate/eval": "/dist/domplate-eval.js",
+
+    "gi0.PINF.it/core/v0 @ # :exports: set() js.browser/domplate/strict": "/dist/domplate.browser.js",
+    "gi0.PINF.it/core/v0 @ # :exports: set() js.browser/domplate/eval": "/dist/domplate-eval.browser.js",
+
+    "gi0.PINF.it/core/v0 @ # :exports: write() /exports.json": "",
+
+
+    "gi0.PINF.it/core/v0 @ # onOption() watch": (inf () >>>
+        {
+            "#": {
+                "server": "bash.origin.express",
+                "runner": "it.pinf.dev.pptr"
+            },
+            ":server:": "server @ server/v0",
+            ":runner:": "runner @ runner/v0",
+            "gi0.PINF.it/core/v0 @ # :server: set() config": {
+                "port": 8080,
+                "routes": {
+                    "^/": "."
+                }
+            },
+            "gi0.PINF.it/core/v0 @ # :server: run() start": "",
+            "gi0.PINF.it/core/v0 @ # :runner: set() config": {
+                "reloadOnWorkspaceChange": true
+            },
+            "gi0.PINF.it/core/v0 @ # :runner: run() start": "http://localhost:8080/workspace/index.html",
+
+
+            "gi0.PINF.it/core/v0 @ # waitForAnyKey()": "",
+
+
+            "gi0.PINF.it/core/v0 @ # :runner: run() stop": "",
+            "gi0.PINF.it/core/v0 @ # :server: run() stop": "",
+
+            "gi0.PINF.it/core/v0 @ # unwatch()": ""
+        }
+    <<<)
+}

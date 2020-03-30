@@ -1,5 +1,5 @@
 
-const LIB = require("bash.origin.lib").forPackage(__dirname).js;
+const LIB = require("bash.origin.lib").js;
 
 const PATH = LIB.path;
 const FS = LIB.FS_EXTRA;
@@ -7,10 +7,10 @@ const CODEBLOCK = LIB.CODEBLOCK;
 const BO = LIB.BASH_ORIGIN;
 
 
-exports.forConfig = function (CONFIG) {
+exports.forConfig = async function (CONFIG) {
 
-    // TODO: Better contextualized default '.rt' path.
-    const baseDistPath = CONFIG.dist ? CONFIG.dist : PATH.join(process.cwd(), ".rt/domplate");
+    // TODO: Better contextualized default '.~' path.
+    const baseDistPath = PATH.resolve(CONFIG.basedir, CONFIG.dist || ".~/domplate");
     // TODO: Make this 'selfSubpath' configurable based on the approach
     //       we are taking to inline dependencies into file structure.
     const selfSubpath = "";
@@ -146,8 +146,8 @@ exports.forConfig = function (CONFIG) {
 
     const repRoutes = {
         "/domplate.browser.js": {
-            "@it.pinf.org.browserify#s1": augmentConfig({
-                "src": PATH.join(__dirname, "lib/domplate.js"),
+            "@it.pinf.org.browserify # router/v0": augmentConfig({
+                "src": PATH.join(__dirname, "../../lib/domplate.js"),
                 "format": "browser",
                 "expose": {
                     "window": "domplate"
@@ -156,8 +156,8 @@ exports.forConfig = function (CONFIG) {
             }, "domplate.browser.js")
         },
         "/domplate-eval.browser.js": {
-            "@it.pinf.org.browserify#s1": augmentConfig({
-                "src": PATH.join(__dirname, "lib/domplate-eval.js"),
+            "@it.pinf.org.browserify # router/v0": augmentConfig({
+                "src": PATH.join(__dirname, "../../lib/domplate-eval.js"),
                 "format": "browser",
                 "expose": {
                     "window": "domplate"
@@ -166,9 +166,10 @@ exports.forConfig = function (CONFIG) {
             }, "domplate-eval.browser.js")
         }
     };
-    Object.keys(CONFIG.reps).forEach(function (uri) {
+    
+    await LIB.BLUEBIRD.map(Object.keys(CONFIG.reps), async function (uri) {
 
-        function getBundleCode (callback) {
+        async function getBundleCode (callback) {
             try {
                 var repCode = CONFIG.reps[uri];
 
@@ -230,6 +231,8 @@ exports.forConfig = function (CONFIG) {
                             }
                         });
                         
+//console.log('>>>', repCode.toString(), '<<<');
+
                         eval('repCode = ' + repCode.toString());
 
                         if (
@@ -368,8 +371,8 @@ exports.forConfig = function (CONFIG) {
                     'exports.main = function (domplate, options) {',
                         'options = options || {};',
                         'var rep = impl(domplate);',
-                        'rep.__dom = "%%DOM%%";',
-                        'rep.__markup = "%%MARKUP%%";',
+                        'rep.__dom = "%__DOM__%";',
+                        'rep.__markup = "%__MARKUP__%";',
                         // '__dbid' - Domplate Build ID
                         'rep.__dbid = "' + repBuildId + '";',
                         // '__dtid' - Domplate Tag ID
@@ -446,9 +449,22 @@ exports.forConfig = function (CONFIG) {
                 }
                 implConfig = augmentConfig(implConfig, uri + ".rep.js", opts);
 
-                var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
-                implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
-                    if (err) return callback(err);
+
+                const distTargetPath = implConfig.dist;
+                delete implConfig.dist;
+
+
+                const repCodePath = await LIB['@pinf-it/core']({
+                    cwd: CONFIG.basedir
+                }).runTool('it.pinf.org.browserify # build/v0', implConfig);
+
+                repCode = await LIB.FS_EXTRA.readFile(repCodePath, 'utf8');
+
+//process.exit(1);
+
+//                var implMod = BO.depend("it.pinf.org.browserify#s1", implConfig);
+//                implMod["#io.pinf/process~s1"]({}, function (err, repCode) {
+ //                   if (err) return callback(err);
 
                     var domCode = {};
                     var markupCode = {};
@@ -461,13 +477,16 @@ exports.forConfig = function (CONFIG) {
 
                     var repSource = repCode;
                     repSource = repSource.replace(/["']use strict['"];/g, "");
-                    repSource = repSource.replace(/"%%DOM%%"/, JSON.stringify(domCode));
-                    repSource = repSource.replace(/"%%MARKUP%%"/, JSON.stringify(markupCode));     
+                    repSource = repSource.replace(/"%__DOM__%"/, JSON.stringify(domCode));
+                    repSource = repSource.replace(/"%__MARKUP__%"/, JSON.stringify(markupCode));     
 
                     compileIfDesired(repSource, structs, function (err, result) {
                         if (err) return callback(err);
 
+//console.log("COMPILED!!! result::", result);
+
                         var repBuild = repCode;
+
                         if (result) {
 
                             var domCode = ['{'];
@@ -503,8 +522,8 @@ exports.forConfig = function (CONFIG) {
                             markupCode.push('}');
 
                             repBuild = repBuild.replace(/["']use strict['"];/g, "");
-                            repBuild = repBuild.replace(/"%%DOM%%"/, domCode.join("\n"));
-                            repBuild = repBuild.replace(/"%%MARKUP%%"/, markupCode.join("\n"));
+                            repBuild = repBuild.replace(/"%__DOM__%"/, domCode.join("\n"));
+                            repBuild = repBuild.replace(/"%__MARKUP__%"/, markupCode.join("\n"));
 
                             if (dist !== false) {
 
@@ -555,7 +574,7 @@ exports.forConfig = function (CONFIG) {
 
                         return callback(null, repBuild);
                     });
-                });
+                //});
 
             } catch (err) {
                 return callback(err);
@@ -568,10 +587,15 @@ exports.forConfig = function (CONFIG) {
         ) {
             if (process.env.VERBOSE) console.log("[domplate] Prime ...");
 
-            getBundleCode(function (err, bundleCode) {
-                if (err) return console.error(err);
+            await new Promise(function (resolve, reject) {
 
-                FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), bundleCode, "utf8");
+                getBundleCode(function (err, bundleCode) {
+                    if (err) return reject(err);
+
+                    FS.outputFileSync(PATH.join(baseDistPath, selfSubpath, uri + ".rep.js"), bundleCode, "utf8");
+
+                    resolve();
+                });
             });
         }
 
@@ -590,13 +614,16 @@ exports.forConfig = function (CONFIG) {
         };
     });
 
-    FS.ensureDirSync(baseDistPath);
+    await FS.ensureDir(baseDistPath);
+
     repRoutes["^\\/"] = baseDistPath;
 
-    const repsApp = LIB.BASH_ORIGIN_EXPRESS.hookRoutes(repRoutes);
+//console.error("repRoutes", repRoutes);
+
+    const repsApp = await LIB.BASH_ORIGIN_EXPRESS.hookRoutes(null, repRoutes);
 
     return {
-        "#io.pinf/middleware~s1": function (API) {
+        "#io.pinf/middleware~s2": function () {
 
             var m = null;
 

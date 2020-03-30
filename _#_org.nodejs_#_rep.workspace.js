@@ -5,6 +5,8 @@
 
 if (require.main === module) {
 
+    throw new Error(`TODO: Port to pinf.it/core`);
+
     const LIB = require("bash.origin.lib").forPackage(__dirname).js;
 
     const PATH = LIB.path;

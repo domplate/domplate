@@ -8,14 +8,14 @@ module.config = {
 }
 */
 
-console.log(">>>TEST_IGNORE_LINE:^[\\d\\.]+\\s<<<");
+const LIB = require('bash.origin.lib').js;
 
 describe("Suite", function() {
 
-    require('bash.origin.lib').js.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
+    const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@github.com~cadorn~domplate#s1": {
+                "@domplate # router/v0": {
                     "reps": {
                         "announcer": function CodeBlock /*CodeBlock */ () {
 
@@ -43,11 +43,13 @@ describe("Suite", function() {
         }
     });
 
-    it('Test', function (client) {
+    it('Test', async function (client) {
 
-        client.url('http://localhost:' + process.env.PORT + '/').pause(500);
+        const PORT = (await server).config.port;
 
-        client.waitForElementPresent('BODY > DIV > DIV', 3000);
+        client.url('http://localhost:' + PORT + '/').pause(500);
+
+        client.waitForElementPresent('BODY > DIV > DIV', 10 * 1000);
         client.expect.element('BODY > DIV > DIV').text.to.contain([
             'HELLO WORLD!'
         ].join(""));

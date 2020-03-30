@@ -2,11 +2,15 @@
 >>>TEST_IGNORE_LINE:\d milliseconds.$<<<
 >>>TEST_IGNORE_LINE:\d+\spassing\s\([^\)]+\)<<<
 environments: default
->>>TEST_IGNORE_LINE:^[\d\.]+\s<<<
 
+
+- [0;36mConnecting to localhost on port 4444...
+[0m
 
   Suite
+[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/it.pinf.org.browserify~router~v0[22m[39m
 [bash.origin.express] Adding route: /client.js
+[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/domplate~router~v0[22m[39m
 [bash.origin.express] Adding route: /domplate-eval.browser.js
 [bash.origin.express] Adding route: /domplate.browser.js
 [bash.origin.express] Adding route: /announcer1.rep.js
@@ -14,11 +18,11 @@ environments: default
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
-[READY]
-[bash.origin.express] Routing request / with method GET due to route /
-[bash.origin.express] Routing request / with method GET due to route /client.js
-[bash.origin.express] Routing request /announcer1.rep.js with method GET due to route { /^\/reps\// fast_star: false, fast_slash: false }
-[bash.origin.express] Routing request / with method GET due to route /announcer1.rep.js
+    ✓ Test
+127.0.0.1 - "GET / HTTP/1.1" 200 - "-"
+127.0.0.1 - "GET /client.js HTTP/1.1" 200 - "http://localhost:8080/"
+[34m[1m[pinf.it][22m[39m [34m[1mWriting to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/runTool/it.pinf.org.browserify~build~v0~8229ebcaed478938e5eedb1dd3f5647e00e32442[22m[39m
+127.0.0.1 - "GET /reps/announcer1.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
 
 
 
