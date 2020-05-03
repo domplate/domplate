@@ -9,6 +9,7 @@
 /node_modules/
 .rt/
 /examples/*/.actual.*
+/examples/*/.dist/
 *~.compiled.*
 ~.rt_*
 .~*

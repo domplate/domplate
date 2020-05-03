@@ -9,8 +9,8 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 console.log(">>>TEST_IGNORE_LINE:\"GET \\/<<<");
-console.log(">>>TEST_IGNORE_LINE:\\[pinf.it\\].+Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
@@ -21,63 +21,62 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "dist": __dirname + "/../../dist",
-                    "compile": true,
-                    "reps": {
-                        "announcer1": {
-                            dist: false,
-                            struct: {
-                                message: "Hello World"
-                            },
-                            rep: function CodeBlock /*CodeBlock */ () {
-
-                                return {
-                                    tag: domplate.tags.DIV("$message|capitalize"),
-                                    capitalize: function (message) {
-                                        return message.toUpperCase();
-                                    }
-                                };
-                            }
-                        },
-                        "announcer2": {
-                            dist: false,
-                            structs: {
-                                tag: {
-                                    message1: "Hello World: 1",
-                                    message2: "Hello World: 2"
+                "gi0.PINF.it/build/v0 # /.dist # /": {
+                    "@domplate # router/v1": {
+                        "compile": true,
+                        "reps": {
+                            "announcer1": {
+                                struct: {
+                                    message: "Hello World"
                                 },
-                                messageTag: {
-                                    message: "Hello World: 0",
+                                rep: function /*CodeBlock */ () {
+
+                                    return {
+                                        tag: domplate.tags.DIV("$message|capitalize"),
+                                        capitalize: function (message) {
+                                            return message.toUpperCase();
+                                        }
+                                    };
                                 }
                             },
-                            rep: function CodeBlock /*CodeBlock */ () {
-
-                                return {
-                                    tag: domplate.tags.DIV(
-                                        {
-                                            style: "border: 1px solid black; padding: 5px"
-                                        },
-                                        domplate.tags.TAG("$messageTag", { "message": "$message1" }),
-                                        domplate.tags.IF("$message2|hasMore", domplate.tags.TAG("$message2|getTag", { "message": "$message2" })),
-                                        domplate.tags.IF("$message2|hasNoMore", domplate.tags.SPAN("no more"))
-                                    ),
-
-                                    messageTag: domplate.tags.DIV({
-                                            "class": "messageTagClass"
-                                        }, "$message"),
-
-                                    hasMore: function (message) {
-                                        return !!message;
+                            "announcer2": {
+                                structs: {
+                                    tag: {
+                                        message1: "Hello World: 1",
+                                        message2: "Hello World: 2"
                                     },
-                                    hasNoMore: function (message) {
-                                        return !message;
-                                    },
-
-                                    getTag: function () {
-                                        return this.messageTag;
+                                    messageTag: {
+                                        message: "Hello World: 0",
                                     }
-                                };
+                                },
+                                rep: function /*CodeBlock */ () {
+
+                                    return {
+                                        tag: domplate.tags.DIV(
+                                            {
+                                                style: "border: 1px solid black; padding: 5px"
+                                            },
+                                            domplate.tags.TAG("$messageTag", { "message": "$message1" }),
+                                            domplate.tags.IF("$message2|hasMore", domplate.tags.TAG("$message2|getTag", { "message": "$message2" })),
+                                            domplate.tags.IF("$message2|hasNoMore", domplate.tags.SPAN("no more"))
+                                        ),
+
+                                        messageTag: domplate.tags.DIV({
+                                                "class": "messageTagClass"
+                                            }, "$message"),
+
+                                        hasMore: function (message) {
+                                            return !!message;
+                                        },
+                                        hasNoMore: function (message) {
+                                            return !message;
+                                        },
+
+                                        getTag: function () {
+                                            return this.messageTag;
+                                        }
+                                    };
+                                }
                             }
                         }
                     }
@@ -85,7 +84,7 @@ describe("Suite", function() {
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate.browser.js"></script>',
+                    '<script src="/reps/dist/domplate.browser.js"></script>',
                 '</head>',
                 '<body>',
                     '<div id="announcer1"></div>',
@@ -115,7 +114,7 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + PORT + '/').pause(500);
 
-        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
+if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
 
         client.waitForElementPresent('BODY #announcer1 > [__dbid]', 10 * 1000);
         client.expect.element('BODY DIV#announcer1').text.to.contain([

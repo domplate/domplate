@@ -9,34 +9,37 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
 describe("Suite", function() {
 
+    this.timeout(60 * 60 * 24 * 1000);
+
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "reps": {
-                        "announcer": function CodeBlock /*CodeBlock */ () {
+                "gi0.PINF.it/build/v0 # /.dist # /reps": {
+                    "@domplate # router/v1": {
+                        "reps": {
+                            "announcer": function /* CodeBlock */ () {
 
-                            return {
-                                tag: domplate.tags.DIV("$message")
-                            };
+                                return {
+                                    tag: domplate.tags.DIV("$message")
+                                };
+                            }
                         }
                     }
                 }
             },
             "/": [
-                '<head>',
-                    '<script src="/reps/domplate-eval.browser.js"></script>',
-                '</head>',
-                '<body><div></div></body>',
+                '<script src="/reps/dist/domplate-eval.browser.js"></script>',
+                '<div></div>',
                 '<script>',
-                'window.domplate.loadRep("/reps/announcer", function (rep) {',
-                    'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV"));',
-                '}, console.error);',
+                    'window.domplate.loadRep("/reps/reps/announcer", function (rep) {',
+                        'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV"));',
+                    '}, console.error);',
                 '</script>'
             ].join("\n")
         }
@@ -48,11 +51,14 @@ describe("Suite", function() {
 
         client.url('http://localhost:' + PORT + '/').pause(500);
 
-        client.waitForElementPresent('BODY > DIV > DIV', 10 * 1000);
-        client.expect.element('BODY > DIV > DIV').text.to.contain([
-            'Hello World!'
-        ].join(""));
+if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
+        
+        var selector = 'BODY DIV DIV';
 
-        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
+        client.waitForElementPresent(selector, 10 * 1000);
+
+        client.expect.element(selector).text.to.contain([
+            'Hello World!'
+        ].join("\n"));
     });
 });

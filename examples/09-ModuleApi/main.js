@@ -17,19 +17,23 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "compile": true,
-                    "reps": {
-                        "announcer1": __dirname + "/../05-CompiledRepCss/announcer1.rep.js"
+                "gi0.PINF.it/build/v0 # /.dist # /": {
+                    "@domplate # router/v1": {
+                        "compile": true,
+                        "reps": {
+                            "announcer1": __dirname + "/../05-CompiledRepCss/announcer1.rep.js"
+                        }
                     }
                 }
             },
             "/client.js": {
-                "@it.pinf.org.browserify # router/v0": {
-                    "src": "./client.js",
-                    "format": "browser",
-                    "expose": {
-                        "window": "client"
+                "gi0.PINF.it/build/v0 # /.dist # /client.js": {
+                    "@it.pinf.org.browserify # router/v1": {
+                        "src": "./client.js",
+                        "format": "browser",
+                        "expose": {
+                            "window": "client"
+                        }
                     }
                 }
             },

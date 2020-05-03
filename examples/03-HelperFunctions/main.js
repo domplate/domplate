@@ -9,6 +9,7 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
@@ -17,23 +18,25 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "reps": {
-                        "announcer": function CodeBlock /*CodeBlock */ () {
+                "gi0.PINF.it/build/v0 # /.dist # /": {
+                    "@domplate # router/v1": {
+                        "reps": {
+                            "announcer": function /*CodeBlock */ () {
 
-                            return {
-                                tag: domplate.tags.DIV("$message|capitalize"),
-                                capitalize: function (str) {
-                                    return str.toUpperCase();
-                                }
-                            };
+                                return {
+                                    tag: domplate.tags.DIV("$message|capitalize"),
+                                    capitalize: function (str) {
+                                        return str.toUpperCase();
+                                    }
+                                };
+                            }
                         }
                     }
                 }
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate-eval.browser.js"></script>',
+                    '<script src="/reps/dist/domplate-eval.browser.js"></script>',
                 '</head>',
                 '<body><div></div></body>',
                 '<script>',

@@ -8,19 +8,11 @@ environments: default
 [0m
 
   Suite
-[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/domplate~router~v0[22m[39m
-[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/it.pinf.org.browserify~router~v0[22m[39m
-[bash.origin.express] Adding route: /domplate-eval.browser.js
-[bash.origin.express] Adding route: /domplate.browser.js
-[bash.origin.express] Adding route: /announcer.rep.js
-[bash.origin.express] Adding route: /^\//
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
-    ✓ Test
 127.0.0.1 - "GET / HTTP/1.1" 200 - "-"
-127.0.0.1 - "GET /reps/domplate-eval.browser.js HTTP/1.1" 200 - "http://localhost:8080/"
-[34m[1m[pinf.it][22m[39m [34m[1mWriting to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/runTool/it.pinf.org.browserify~build~v0~40142e9adab9e04055c309dce11c9717bf1a7d6a[22m[39m
+127.0.0.1 - "GET /reps/dist/domplate-eval.browser.js HTTP/1.1" 200 - "http://localhost:8080/"
 127.0.0.1 - "GET /reps/announcer.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
 
 

@@ -13,12 +13,14 @@ _module.exports = init();
 
 function impl(domplate) {
   return {
-    tag: domplate.tags.DIV("$message")
+    tag: domplate.tags.DIV({
+      class: "announcer"
+    }, "$message")
   };
 }
 
 function css() {
-  return atob("");
+  return atob("Ci5hbm5vdW5jZXJbX19kYmlkPSIyNWFmZTJlMGUzMjY4NGVjNjVlYThjYWFjZjEyYzNiNTg3OTYzYjBkIl0gewogICAgYmFja2dyb3VuZC1jb2xvcjogcmVkOwp9CgoKLmFubm91bmNlcltfX2RiaWQ9IjI1YWZlMmUwZTMyNjg0ZWM2NWVhOGNhYWNmMTJjM2I1ODc5NjNiMGQiXSB7CiAgICBiYWNrZ3JvdW5kLWNvbG9yOiBncmVlbjsKICAgIGJvcmRlcjogMXB4IHNvbGlkIGJsYWNrOwogICAgcGFkZGluZzogNXB4Owp9Cg==");
 }
 
 exports.main = function (domplate, options) {
@@ -42,11 +44,11 @@ var __escape__ = context.__escape__;
 var __if__ = context.__if__;
 var __loop__ = context.__loop__;
 var __link__ = context.__link__;
-return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " __dbid=\"","f26ff10b8de2797134cfad2ba2a24e18cf98b53e", "\"", " __dtid=\"","announcer1", "\"",">",__escape__(message),"</div>");  }}})
+return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " __dbid=\"","25afe2e0e32684ec65ea8caacf12c3b587963b0d", "\"", " __dtid=\"","announcer2", "\"", " class=\"","announcer", " ", "\"",">",__escape__(message),"</div>");  }}})
 }
 };
-  rep.__dbid = "f26ff10b8de2797134cfad2ba2a24e18cf98b53e";
-  rep.__dtid = "announcer1";
+  rep.__dbid = "25afe2e0e32684ec65ea8caacf12c3b587963b0d";
+  rep.__dtid = "announcer2";
   var res = domplate.domplate(rep);
   var injectedCss = false;
 

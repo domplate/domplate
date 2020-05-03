@@ -1,28 +1,18 @@
-((function (_require, _exports, _module) {
-var bundle = { require: _require, exports: _exports, module: _module };
-var exports = undefined;
-var module = undefined;
-var define = function (deps, init) {
-var exports = init();
-[["domplate","domplate"]].forEach(function (expose) {
-if (typeof window !== "undefined") {
-window[expose[0]] = exports[expose[1]];
-} else if (typeof self !== "undefined") {
-self[expose[0]] = exports[expose[1]];
-}
-});
-}; define.amd = true;
 
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mainModule = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.mainModule = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(_require_,module,exports){
+
+module.exports = _require_("./domplate");
+module.exports.domplate.EVAL = _require_("./explicit-unsafe-eval");
+},{"./domplate":2,"./explicit-unsafe-eval":3}],2:[function(_require_,module,exports){
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var RT = require("./rt");
+var RT = _require_("./rt");
 
-var Renderer = exports.Renderer = require("./renderer").Renderer;
+var Renderer = exports.Renderer = _require_("./renderer").Renderer;
 
 function Domplate(exports) {
-  exports.util = require("./util");
+  exports.util = _require_("./util");
 
   exports.loadStyle = function (uri, baseUrl) {
     var WINDOW = window;
@@ -733,7 +723,7 @@ exports.domplate.ensureLoader = function () {
     return window.PINF;
   }
 
-  var PINF = require("pinf-loader-js/loader.browser");
+  var PINF = _require_("pinf-loader-js/loader.browser");
 
   return window.PINF;
 };
@@ -751,7 +741,37 @@ exports.domplate.loadRep = function (url, options, successCallback, errorCallbac
     successCallback(rep);
   }, errorCallback);
 };
-},{"./renderer":2,"./rt":3,"./util":4,"pinf-loader-js/loader.browser":6}],2:[function(require,module,exports){
+},{"./renderer":4,"./rt":5,"./util":6,"pinf-loader-js/loader.browser":8}],3:[function(_require_,module,exports){
+
+exports.compileMarkup = function (code, context) {
+  var DomplateDebug = context.DomplateDebug;
+  var __escape__ = context.__escape__;
+  var __if__ = context.__if__;
+  var __loop__ = context.__loop__;
+  var __link__ = context.__link__;
+
+  if (exports.onMarkupCode) {
+    exports.onMarkupCode(code);
+  }
+
+  return eval(code);
+};
+
+exports.compileDOM = function (code, context) {
+  var DomplateDebug = context.DomplateDebug;
+  var __path__ = context.__path__;
+  var __bind__ = context.__bind__;
+  var __if__ = context.__if__;
+  var __link__ = context.__link__;
+  var __loop__ = context.__loop__;
+
+  if (exports.onDOMCode) {
+    exports.onDOMCode(code);
+  }
+
+  return eval(code);
+};
+},{}],4:[function(_require_,module,exports){
 
 var Renderer = exports.Renderer = {
   checkDebug: function checkDebug() {},
@@ -864,7 +884,7 @@ var Renderer = exports.Renderer = {
     return html;
   }
 };
-},{}],3:[function(require,module,exports){
+},{}],5:[function(_require_,module,exports){
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
@@ -1074,12 +1094,12 @@ exports.makeDOMRuntime = function (EVAL, context) {
 
   return exports;
 };
-},{}],4:[function(require,module,exports){
+},{}],6:[function(_require_,module,exports){
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 var FBTrace = {};
-exports.merge = require("deepmerge");
+exports.merge = _require_("deepmerge");
 
 exports.escapeNewLines = function (value) {
   return value.replace(/\r/gm, "\\r").replace(/\n/gm, "\\n");
@@ -1527,7 +1547,7 @@ exports.isArguments = function (object) {
 
   return true;
 };
-},{"deepmerge":5}],5:[function(require,module,exports){
+},{"deepmerge":7}],7:[function(_require_,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
@@ -1626,7 +1646,7 @@ return deepmerge_1;
 
 })));
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(_require_,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * License: Zero-Clause BSD - https://opensource.org/licenses/0BSD
@@ -1643,7 +1663,7 @@ exports.PINF = (function (global) {
 		return global.PINF;
 	}
 
-	const LOADER = require('./loader');
+	const LOADER = _require_('./loader');
 
 	const PINF = LOADER.Loader({
 		document: global.document
@@ -1692,14 +1712,14 @@ exports.PINF = (function (global) {
 			null
 ));
 
-},{"./loader":7}],7:[function(require,module,exports){
+},{"./loader":9}],9:[function(_require_,module,exports){
 /**
  * Author: Christoph Dorn <christoph@christophdorn.com>
  * License: Zero-Clause BSD - https://opensource.org/licenses/0BSD
 **/
 
 (function (exports) {
- 
+
 // The global `require` for the 'external' (to the loader) environment.
 var Loader = function (global) {
 
@@ -1746,7 +1766,7 @@ var Loader = function (global) {
 	}
 
 	// @credit https://github.com/unscriptable/curl/blob/62caf808a8fd358ec782693399670be6806f1845/src/curl.js#L319-360
-	function loadInBrowser (uri, loadedCallback) {
+	function loadInBrowser (uri, loadedCallback, sandboxOptions) {
 		try {
 			// See if we are in a web worker.
 			if (typeof importScripts !== "undefined") {
@@ -1774,7 +1794,9 @@ var Loader = function (global) {
 				if (ev.type === "load" || readyStates[this.readyState]) {
 					this.onload = this.onreadystatechange = this.onerror = null;
 					loadedCallback(null, function () {
-						element.parentNode.removeChild(element);
+						if (!sandboxOptions || sandboxOptions.keepScriptTags !== true) {
+							element.parentNode.removeChild(element);
+						}
 					});
 				}
 			}
@@ -1887,7 +1909,8 @@ var Loader = function (global) {
 										cleanupCallback();
 									}
 								});
-							}
+							},
+							sandboxOptions
 						);
 					}
 				}
@@ -1939,7 +1962,8 @@ var Loader = function (global) {
 									function () {
 										pending -= 1;
 										finalize();
-									}
+									},
+									sandboxOptions
 								);
 							}
 						}
@@ -2018,7 +2042,7 @@ var Loader = function (global) {
 					pkg.mappings = descriptor.mappings || pkg.mappings;
 					pkg.directories = descriptor.directories || pkg.directories;
 					// NOTE: We need `lib` directory support so that the source directory structure can be mapped
-					//       into the bundle structure without modification. If this is not done, a module doing a relative require
+					//       into the bundle structure without modification. If this is not done, a module doing a relative _require_
 					//       for a resource outside of the lib directory will not find the file.
 					pkg.libPath = (typeof pkg.directories.lib !== "undefined" && pkg.directories.lib != "") ? pkg.directories.lib + "/" : pkg.libPath;
 				}
@@ -2416,7 +2440,7 @@ var Loader = function (global) {
 	];
 
 	// Create a new environment to memoize modules to.
-	// If relative, the `programIdentifier` is resolved against the URI of the owning page (this is only for the global require).
+	// If relative, the `programIdentifier` is resolved against the URI of the owning page (this is only for the global _require_).
 	PINF.sandbox = normalizeSandboxArguments(function (programIdentifier, options, loadedCallback, errorCallback) {
 		if (typeof programIdentifier === "function") {
 			options = options || {};
@@ -2428,7 +2452,7 @@ var Loader = function (global) {
 					loadedCallback(null);
 					return;
 				}
-				return fallbackLoad(uri, loadedCallback);
+				return fallbackLoad(uri, loadedCallback, options);
 			}
 			programIdentifier = bundle.uri || "#pinf:" + Math.random().toString(36).substr(2, 9);
 		}
@@ -2471,5 +2495,3 @@ if (exports) exports.Loader = Loader;
 
 },{}]},{},[1])(1)
 });
-
-})((typeof require !== "undefined" && require) || undefined, (typeof exports !== "undefined" && exports) || undefined, (typeof module !== "undefined" && module) || undefined))

@@ -1,3 +1,75 @@
 {
-    "router/v0 #": "${__DIRNAME__}/tool."
+    "#": "gi0.PINF.it/core/v0",
+
+    "#": {
+        "browserify": "it.pinf.org.browserify",
+        "sm.exports": "gi0.Sourcemint.org/exports.json"
+    },
+
+    ":build:": "browserify @ build/v1",
+    ":exports:": "sm.exports @ exports/v1",
+
+    "router/v1 #": "${__DIRNAME__}/tool.",
+    "build/v1 #": "${__DIRNAME__}/tool.",
+
+    "build/v1 # onHome()": (inf () >>>
+        {
+            "gi0.PINF.it/build/v0 @ # :build: write() /dist/domplate.js": {
+                "src": "../../lib/domplate.js",
+                "format": "node",
+                "renameRequire": true,
+                "strictMode": false
+            },
+            "gi0.PINF.it/build/v0 @ # :build: write() /dist/domplate-eval.js": {
+                "src": "../../lib/domplate-eval.js",
+                "format": "node",
+                "renameRequire": true,
+                "strictMode": false
+            },
+        
+            "gi0.PINF.it/build/v0 @ # :build: write() /dist/domplate.browser.js": {
+                "src": "../../lib/domplate.js",
+                "format": "browser",
+                "expose": {
+                    "window": "domplate"
+                },
+                "strictMode": false
+            },
+            "gi0.PINF.it/build/v0 @ # :build: write() /dist/domplate-eval.browser.js": {
+                "src": "../../lib/domplate-eval.js",
+                "format": "browser",
+                "expose": {
+                    "window": "domplate"
+                },
+                "strictMode": false
+            },
+        
+            "gi0.PINF.it/build/v0 @ # :exports: write() /dist/exports.json": {
+                "js": {
+                    "domplate": {
+                        "strict": {
+                            "path": "/dist/domplate.js",
+                            "summary": "Portable JavaScript source code for strict mode. Can only render pre-compiled templates."
+                        },
+                        "eval": {
+                            "path": "/dist/domplate-eval.js",
+                            "summary": "Portable JavaScript source code using eval. Can compile and render templates from source."
+                        }
+                    }
+                },
+                "js.browser": {
+                    "domplate": {
+                        "strict": {
+                            "path": "/dist/domplate.browser.js",
+                            "summary": "Browser JavaScript source code for strict mode. Can only render pre-compiled templates."
+                        },
+                        "eval": {
+                            "path": "/dist/domplate-eval.browser.js",
+                            "summary": "Browser JavaScript source code using eval. Can compile and render templates from source."
+                        }
+                    }
+                }
+            }
+        }
+    <<<)
 }

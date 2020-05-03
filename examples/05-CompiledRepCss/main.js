@@ -9,8 +9,8 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 console.log(">>>TEST_IGNORE_LINE:\"GET \\/<<<");
-console.log(">>>TEST_IGNORE_LINE:\\[pinf.it\\].+Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
@@ -19,17 +19,19 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "compile": true,
-                    "reps": {
-                        "announcer1": __dirname + "/announcer1.rep.js",
-                        "announcer2": __dirname + "/announcer2.rep.js"
+                "gi0.PINF.it/build/v0 # /.dist # /": {
+                    "@domplate # router/v1": {
+                        "compile": true,
+                        "reps": {
+                            "announcer1": __dirname + "/announcer1.rep.js",
+                            "announcer2": __dirname + "/announcer2.rep.js"
+                        }
                     }
                 }
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate.browser.js"></script>',
+                    '<script src="/reps/dist/domplate.browser.js"></script>',
                 '</head>',
                 '<body>',
                     '<div id="announcer1"></div>',

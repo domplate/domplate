@@ -43,11 +43,11 @@ var __escape__ = context.__escape__;
 var __if__ = context.__if__;
 var __loop__ = context.__loop__;
 var __link__ = context.__link__;
-return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " style=\"","border: 3px solid blue; padding: 5px;", "\"", " __dbid=\"","b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a", "\"", " __dtid=\"","subdir/announcer3", "\"", " class=\"","announcer", " ", "\"",">","<div",">",__escape__(message),"</div>","<div", " class=\"","img", " ", "\"",">","</div>","</div>");  }}})
+return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " style=\"","border: 3px solid blue; padding: 5px;", "\"", " __dbid=\"","b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a", "\"", " __dtid=\"","announcer3", "\"", " class=\"","announcer", " ", "\"",">","<div",">",__escape__(message),"</div>","<div", " class=\"","img", " ", "\"",">","</div>","</div>");  }}})
 }
 };
   rep.__dbid = "b2a13d9c6ea09ff8ac963dbd79e50c1dd8e4b39a";
-  rep.__dtid = "subdir/announcer3";
+  rep.__dtid = "announcer3";
   var res = domplate.domplate(rep);
   var injectedCss = false;
 

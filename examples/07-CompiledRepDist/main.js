@@ -9,8 +9,8 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 console.log(">>>TEST_IGNORE_LINE:\"GET \\/<<<");
-console.log(">>>TEST_IGNORE_LINE:\\[pinf.it\\].+Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
@@ -19,29 +19,29 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "dist": __dirname + "/dist",
-                    "compile": true,
-                    "reps": {
-                        "announcer1": {
-                            dist: true,
-                            struct: {
-                                message: "Hello World"
-                            },
-                            rep: function CodeBlock /*CodeBlock */ () {
+                "gi0.PINF.it/build/v0 # /dist # /": {
+                    "@domplate # router/v1": {
+                        "compile": true,
+                        "reps": {
+                            "announcer1": {
+                                struct: {
+                                    message: "Hello World"
+                                },
+                                rep: function /*CodeBlock*/ () {
 
-                                return {
-                                    tag: domplate.tags.DIV("$message")
-                                };
-                            }
-                        },
-                        "announcer2": __dirname + "/reps/announcer2.rep.js"
+                                    return {
+                                        tag: domplate.tags.DIV("$message")
+                                    };
+                                }
+                            },
+                            "announcer2": __dirname + "/reps/announcer2.rep.js"
+                        }
                     }
                 }
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate.browser.js"></script>',
+                    '<script src="/reps/dist/domplate.browser.js"></script>',
                 '</head>',
                 '<body>',
                     '<div id="announcer1"></div>',
@@ -51,7 +51,7 @@ describe("Suite", function() {
                     'window.domplate.loadRep("/reps/announcer1", function (rep) {',
                         'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer1"));',
                     '}, console.error);',
-                    'window.domplate.loadRep("/reps/announcer2", { cssBaseUrl: "/reps/subdir/" }, function (rep) {',
+                    'window.domplate.loadRep("/reps/announcer2", { cssBaseUrl: "/reps/" }, function (rep) {',
                         'rep.tag.replace({ message: "Hello World!" }, document.querySelector("DIV#announcer2"));',
                     '}, console.error);',
                 '</script>'
@@ -64,6 +64,8 @@ describe("Suite", function() {
         const PORT = (await server).config.port;
 
         client.url('http://localhost:' + PORT + '/').pause(500);
+
+if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
         
         client.waitForElementPresent('BODY #announcer1 > [__dbid]', 10 * 1000);
         client.expect.element('BODY DIV#announcer1').text.to.contain([
@@ -74,7 +76,5 @@ describe("Suite", function() {
         client.expect.element('BODY DIV#announcer2').text.to.contain([
             'Hello World!'
         ].join(""));
-
-        if (process.env.BO_TEST_FLAG_DEV) client.pause(60 * 60 * 24 * 1000);
     });
 });

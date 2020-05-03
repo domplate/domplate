@@ -13,12 +13,17 @@ _module.exports = init();
 
 function impl(domplate) {
   return {
-    tag: domplate.tags.DIV("$message")
+    tag: domplate.tags.DIV({
+      style: "border: 1px solid black; padding: 5px;",
+      class: "announcer"
+    }, domplate.tags.DIV("$message"), domplate.tags.DIV({
+      class: "img"
+    }))
   };
 }
 
 function css() {
-  return atob("");
+  return atob("Ci5hbm5vdW5jZXJbX19kYmlkPSJlNjUxNWE3NjJlMzBhMWUzOTY3OTM0NTljMjk0N2M3OWMyNjljMGYwIl0gewogICAgYmFja2dyb3VuZC1jb2xvcjogZ3JlZW47CiAgICB3aGl0ZS1zcGFjZTogbm93cmFwOwp9CgouYW5ub3VuY2VyW19fZGJpZD0iZTY1MTVhNzYyZTMwYTFlMzk2NzkzNDU5YzI5NDdjNzljMjY5YzBmMCJdID4gRElWIHsKICAgIGRpc3BsYXk6IGlubGluZS1ibG9jazsKfQoKLmFubm91bmNlcltfX2RiaWQ9ImU2NTE1YTc2MmUzMGExZTM5Njc5MzQ1OWMyOTQ3Yzc5YzI2OWMwZjAiXSA+IERJVi5pbWcgewogICAgYmFja2dyb3VuZC1pbWFnZTogdXJsKGltYWdlcy9pbmZvcm1hdGlvbi5wbmcpOwogICAgd2lkdGg6IDE2cHg7CiAgICBoZWlnaHQ6IDE2cHg7CiAgICBtYXJnaW4tbGVmdDogMTBweDsKfQo=");
 }
 
 exports.main = function (domplate, options) {
@@ -42,11 +47,11 @@ var __escape__ = context.__escape__;
 var __if__ = context.__if__;
 var __loop__ = context.__loop__;
 var __link__ = context.__link__;
-return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " __dbid=\"","f26ff10b8de2797134cfad2ba2a24e18cf98b53e", "\"", " __dtid=\"","announcer1", "\"",">",__escape__(message),"</div>");  }}})
+return (function (__code__, __context__, __in__, __out__) {  with (this) {  with (__in__) {    __code__.push("","<div", " style=\"","border: 1px solid black; padding: 5px;", "\"", " __dbid=\"","e6515a762e30a1e396793459c2947c79c269c0f0", "\"", " __dtid=\"","announcer2", "\"", " class=\"","announcer", " ", "\"",">","<div",">",__escape__(message),"</div>","<div", " class=\"","img", " ", "\"",">","</div>","</div>");  }}})
 }
 };
-  rep.__dbid = "f26ff10b8de2797134cfad2ba2a24e18cf98b53e";
-  rep.__dtid = "announcer1";
+  rep.__dbid = "e6515a762e30a1e396793459c2947c79c269c0f0";
+  rep.__dtid = "announcer2";
   var res = domplate.domplate(rep);
   var injectedCss = false;
 

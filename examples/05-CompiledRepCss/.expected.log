@@ -3,24 +3,15 @@
 >>>TEST_IGNORE_LINE:\d+\spassing\s\([^\)]+\)<<<
 environments: default
 >>>TEST_IGNORE_LINE:"GET \/<<<
->>>TEST_IGNORE_LINE:\[pinf.it\].+Writing to:<<<
 
 
 - [0;36mConnecting to localhost on port 4444...
 [0m
 
   Suite
-[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/domplate~router~v0[22m[39m
-[34m[1m[pinf.it][22m[39m [34m[1mMounting route app to: TeStLoCaLiZeD/.~/gi0.PINF.it/core/getRouteApp/it.pinf.org.browserify~router~v0[22m[39m
-[bash.origin.express] Adding route: /domplate-eval.browser.js
-[bash.origin.express] Adding route: /domplate.browser.js
-[bash.origin.express] Adding route: /announcer1.rep.js
-[bash.origin.express] Adding route: /announcer2.rep.js
-[bash.origin.express] Adding route: /^\//
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
-    ✓ Test
 
 
 

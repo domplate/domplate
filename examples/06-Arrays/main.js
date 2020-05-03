@@ -9,6 +9,7 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:Writing to:<<<");
 
 const LIB = require('bash.origin.lib').js;
 
@@ -17,29 +18,31 @@ describe("Suite", function() {
     const server = LIB.BASH_ORIGIN_EXPRESS.runForTestHooks(before, after, {
         "routes": {
             "^/reps/": {
-                "@domplate # router/v0": {
-                    "reps": {
-                        "announcer": function CodeBlock /*CodeBlock*/ () {
+                "gi0.PINF.it/build/v0 # /.dist # /": {
+                    "@domplate # router/v1": {
+                        "reps": {
+                            "announcer": function /*CodeBlock*/ () {
 
-                            return {
-                                tag: domplate.tags.UL(
-                                    domplate.tags.FOR("item", "$list|listIterator", domplate.tags.LI("$item.value"))
-                                ),
-                                listIterator: function (items) {
-                                    return items.map(function (value) {
-                                        return {
-                                            value: value
-                                        };
-                                    });
-                                }
-                            };
+                                return {
+                                    tag: domplate.tags.UL(
+                                        domplate.tags.FOR("item", "$list|listIterator", domplate.tags.LI("$item.value"))
+                                    ),
+                                    listIterator: function (items) {
+                                        return items.map(function (value) {
+                                            return {
+                                                value: value
+                                            };
+                                        });
+                                    }
+                                };
+                            }
                         }
                     }
                 }
             },
             "/": [
                 '<head>',
-                    '<script src="/reps/domplate-eval.browser.js"></script>',
+                    '<script src="/reps/dist/domplate-eval.browser.js"></script>',
                 '</head>',
                 '<body><div></div></body>',
                 '<script>',
