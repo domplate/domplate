@@ -11,10 +11,6 @@ environments: default
 [bash.origin.express] Adding route: /^\/reps\//
 [bash.origin.express] Adding route: /
 Server: http://localhost:8080/
-127.0.0.1 - "GET / HTTP/1.1" 200 - "-"
-127.0.0.1 - "GET /reps/dist/domplate.browser.js HTTP/1.1" 200 - "http://localhost:8080/"
-127.0.0.1 - "GET /reps/announcer1.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
-127.0.0.1 - "GET /reps/announcer2.rep.js HTTP/1.1" 200 - "http://localhost:8080/"
 
 
 

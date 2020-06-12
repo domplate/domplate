@@ -9,6 +9,7 @@ module.config = {
 */
 
 console.log(">>>TEST_IGNORE_LINE:Run tool step for:<<<");
+console.log(">>>TEST_IGNORE_LINE:GET /<<<");
 
 const LIB = require('bash.origin.lib').js;
 

@@ -27,6 +27,7 @@ exports['gi0.PINF.it/build/v0'] = async function (LIB, CLASSES) {
             config.dist = target.path;
 
             await require('./builder').forConfig(config, {
+                LIB: LIB,
                 result: result,
                 build: build,
                 target: target,

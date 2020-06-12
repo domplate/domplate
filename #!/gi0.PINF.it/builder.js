@@ -2,7 +2,7 @@
 const LIB = require("bash.origin.lib").js;
 
 const PATH = LIB.path;
-const FS = LIB.FS_EXTRA;
+let FS = LIB.FS_EXTRA;
 const CODEBLOCK = LIB.CODEBLOCK;
 const BO = LIB.BASH_ORIGIN;
 
@@ -10,6 +10,12 @@ const PINF_LOADER_JS = require("pinf-loader-js");
 
 
 exports.forConfig = async function (CONFIG, options) {
+
+    if (options.LIB) {
+        FS = options.LIB.FS;
+        LIB.FS = FS;
+        LIB.FS_EXTRA = FS;
+    }
 
     options = options || {};
 
