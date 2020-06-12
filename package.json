@@ -1,6 +1,6 @@
 {
   "name": "domplate",
-  "version": "0.4.0-pre.0",
+  "version": "0.5.0-pre.0",
   "pm": {
     "publish": "npm"
   },
@@ -39,7 +39,7 @@
     "jsdom": "^11.5.1",
     "pinf-loader-js": "^0.4.22",
     "fs-extra": "^5.0.0",
-    "bash.origin.lib": "^0.4.0-pre.20"
+    "bash.origin.lib": "^0.5.0-pre.0"
   },
   "scripts": {
     "test": "bash.origin.test examples",
