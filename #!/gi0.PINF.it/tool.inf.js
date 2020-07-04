@@ -3,6 +3,8 @@ let runHomeInstructions = null;
 
 exports['gi0.PINF.it/build/v0'] = async function (LIB, CLASSES) {
 
+    let buildQueue = Promise.resolve();
+
     class BuildStep extends CLASSES.BuildStep {
 
         async onHome (result, home, workspace) {
@@ -26,15 +28,19 @@ exports['gi0.PINF.it/build/v0'] = async function (LIB, CLASSES) {
 //            config.basedir = build.path;
             config.dist = target.path;
 
-            await require('./builder').forConfig(config, {
-                LIB: LIB,
-                result: result,
-                build: build,
-                target: target,
-                instance: instance,
-                home: home,
-                workspace: workspace
-            });
+            // TODO: Allow parallel building of different scripts and only run duplicate scripts once.
+            return (buildQueue = buildQueue.then(async function () {
+
+                await require('./builder').forConfig(config, {
+                    LIB: LIB,
+                    result: result,
+                    build: build,
+                    target: target,
+                    instance: instance,
+                    home: home,
+                    workspace: workspace
+                });    
+            }));
         }
     }
 
