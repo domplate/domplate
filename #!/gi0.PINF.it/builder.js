@@ -412,7 +412,7 @@ exports.forConfig = async function (CONFIG, options) {
                                 const cssPath = LIB.PATH.join(baseDistPath, cssUri);
 //                                const cssPath = LIB.PATH.join(baseDistPath, distSub, cssUri);
 
-                                FS.outputFileSync(cssPath, cssCode, 'utf8');
+                                FS.outputFileSync(cssPath, cssCode || '', 'utf8');
 
                                 return [
                                     'domplate.loadStyle("' + cssUri + '", options.cssBaseUrl || undefined);',
